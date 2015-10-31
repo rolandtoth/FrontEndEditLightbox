@@ -1,162 +1,222 @@
 Front-End Edit Lightbox (FEEL) for ProcessWire
 ================
 
-Edit pages on the front-end using lightboxed admin.
-Needs only one JavaScript file and placing edit link markups to template files.
+Edit pages from the front-end using lightboxed admin in [ProcessWire CMS](http://processwire.com/).
 
-Requires jQuery. Uses [Magnific Popup](http://dimsemenov.com/plugins/magnific-popup/) that is pulled from ProcessWire core so no need to add manually.
+Requires jQuery and uses [Magnific Popup](http://dimsemenov.com/plugins/magnific-popup/) (pulled from ProcessWire core so no need to add manually).
 
-Features
----------------------------------------
+## Features
 
-- easy to setup: one JavaScript file only
+- add edit links to templates using $page->feel() ($page can be any Page object)
+- open admin in a lightbox
 - reload page only if page was saved
 - auto-close lightbox on save if no errors (optional)
+- edit page template on ctrl-click
 - load language tabs of the language currently browsed
-- jump directly to a field, even in a tab
-- hide elements from admin using jQuery selectors
+- jump directly to an admin field or tab
+- hide elements from the admin using jQuery selectors
+- edit page template on ctrl+click (optional)
 - configurable lightbox properties
 - edit link positioning helper classes
-- utilizes built-in tools only (native ProcessWire features)
+- fail-safe: utilizes native ProcessWire operations only
 
-Usage
----------------------------------------
+## Usage
 
-1. Add FEEL.js to your site:
+1. Install the module
 
-  ```php
-  <?php if($page->editable()) { ?>
-  <script src="<?php echo $config->urls->templates ?>scripts/FEEL.js"></script>
-  <?php } ?>
-  ```
+1. Place edit links in your template files where you would like them to appear:
 
-2. Place Edit links where you would like them to appear. Make sure only users with proper rights can see them.
+    ```php
+	<?php echo $page->feel(); ?>
+    ```
+    `$page` is the page that you would like to edit. It can be any page, not only the current one.
 
-  ```php
-  <?php if($page->editable()) { ?>
-  <a href="<?php echo $page->editUrl; ?>" class="feel feel-inline">Edit</a>
-  <?php } ?>
-  ```
-  
-  There is also a helper function that makes adding edit links easier, see below.
+    *Example: loop over subpages of the homepage and add edit links after their title:*
 
-3. Configure options and styling (see below)
+    ```php
+    <?php foreach($homepage->children() as $p) { ?>
+        <h3><?php
+            echo $p->title;
+            echo $p->feel();
+        ?></h3>
+    <?php } ?>
+    ```
 
-Helper function
----------------------------------------
-To make outputting edit links easier, add this function to your "_func.php" file:
+    *Example: edit the parent page:*
 
- ```php
-function feel($item, $linkName = "", $classes = "", $targetField = "", $targetTab = "") {
-	if ($item instanceof Page && $item->editable()) {
-		$linkName = !$linkName ? "#" : $linkName;
-		$classes = !$classes ? "feel-inline" : "feel-" . preg_replace("/\s/", " feel-", $classes);
-		return '<a href="' . $item->editUrl . '&language=' . wire("user")->language->id . '" class="feel ' . $classes . ' " data-target-tab="' . $targetTab . '" data-target-field="' . $targetField . '">' . $linkName . '</a>';
-	}
+    ```php
+    echo feel($page->parent());
+    ```
+
+    *Example: edit the "Our Services" page on an arbitrary page:*
+
+    ```php
+    echo $pages->get("/our-services/")->feel();
+    ```
+
+1. Set link name, positioning/styling classes, target field or tab, etc using [parameters](#parameters).
+
+## Parameters
+
+You can control how should edit links appear and behave using parameters:
+
+```php
+<?php
+echo $page->feel(array(
+    "name" => "Edit page",
+    "class" => fixed left",
+    "targetField" => "images"
+    )
+);
+?>
+```
+
+Using the code above will set "Edit page" for link name and classes "fixed" and "left". It also sets target field to "images", which will scroll into view and gets highlighted when the admin loads.
+
+**List of available parameters:**
+
+- `$name`
+- `$class`
+- `$targetField`
+- `$targetTab`
+- `$options`
+
+### Edit link name ($name)
+
+This is the text of the edit link that will appear on the page. If not set, defaults to the "#" character.
+
+### Positioning classes ($class)
+
+By default edit links appear inline and with black font color. You can use the following classes to modify their position and appearance:
+
+- `fixed`: sets "position: fixed"
+- `relative`: sets "position: relative"
+- `absolute`: sets "position: absolute"
+- `left`, `right`, `top`, `bottom`: sets corresponding CSS value to zero (eg. "bottom: 0;")
+- `button`: adds padding and sets background-color to 50% white
+- `small`: sets a smaller font size (plus a smaller padding when used together with `button`)
+- `invert`: sets font color to white (plus sets background-color to 50% black when used together with `button`)
+- `transparent`: sets background-color to transparent (only for `button`)
+
+*Example: set edit link to appear as a button in the bottom-left corner of the browser window, with black background and white font color:*
+
+```php
+if (function_exists("feel")) {
+	echo feel($page, 0, "fixed bottom left button invert");
 }
 ```
 
-After this you can add edit links with a simple echo:
+Please note that fixed positioned edit links will overlap if placed to the same position, eg. adding two edit links with classes "fixed top left".
 
- ```php
- echo feel($page);
-```
+### Target field and target tab ($targetField, $targetTab)
 
-If you would like to set link name, classes, target field or tab, use this:
+Parameters **targetField** and **targetTab** are field and tab CSS admin IDs. If set, the admin will jump to this field or tab.
 
- ```php
-echo feel($page, "Edit page", "fixed left", "images");
-```
-
-Using the code above will set "Edit page" for link name and classes "feel-fixed" and "feel-left".
-It also sets target field "images", which will be highlighted.
-
-**$page** can be any Page object. For example, looping over child pages:
-
- ```php
-<?php foreach($homepage->children() as $p) { ?>
-    <h3><?php echo $p->title . feel($p, "Edit"); ?><h3>
-<?php } ?> 
-```
-
-This will output all subpage titles of the homepage plus links to edit them.
-
-**$classes** are positioning/styling classes, see Styling below.
-
-**target_field** and **target_tab** parameters are field and tab IDs from the admin.
-If set, the admin will jump to this field or tab.
 This can come handy if you would like to open the admin right at a given field.
-This feature adds a small highlight (outline) to the field to make it easier to find (see "fieldHighlightStyle" option below to style or disable).
+It also adds a small highlight (outline) to the field to make it easier to find (see "fieldHighlightStyle" option to modify or disable).
 
-In case you don't use the helper function you can add field and tab targets manually using data attributes.
-Note that you do not have to add the "#" characters.
+*Example: jump to SEO keywords field under SEO tab (requires the MarkupSEO module):*
 
- ```html
-<a href... data-target-tab="TAB_ID" data-target-field="FIELD_ID">Edit</a
+```php
+echo feel($page->feel(array(
+	"name" => "Click to edit SEO keywords",
+    "class" => "fixed left top",
+    "targetField" => "seo_keywords",
+    "targetTab" => "Inputfield_seo_tab"
+    )
+);
 ```
 
-**Order of the parameters** is important - use 0 or false to skip a parameter:
+Note that you do not have to add the "#" characters for IDs.
 
- ```php
-echo feel($page, 0, 0, "my_field");
+To find out tab IDs use the browser's Developer Tools (Inspector).
+
+### Options
+
+Per edit link options can be set here.
+
+You can override global options on individual edit links if you wish. To do that, pass an array with the custom options.
+
+Individual options only affect the current edit link.
+
+*Example: set `closeOnSave` to false and set a custom highlight style on the "body" field:*
+
+```php
+echo $page->feel(array(
+        "name" => Edit link with custom settings",
+        "options" => array(
+            "closeOnSave" => false,
+            "fieldHighlightStyle" => "outline: 4px double #E83561;"
+        )
+    )
+);
 ```
 
-### Multilanguage awareness
+*Example: disable template edit mode plus enable Magnific Popup to close on background click:*
 
-The helper function also takes the current language into account.
-For example, when browsing the German section of a multilanguage site the German tabs will be opened by default in the admin.
+```php
+echo $page->feel(array(
+	"options" => array(
+        "enableTemplateEdit" => false,
+        "popupSettings" => array(
+            "closeOnBgClick" => true
+        )
+    )
+);
+```
 
-Options
----------------------------------------
+## Options
 
-To modify global FEEL settings, edit FEEL.js:
+## Global options
 
-- **selector**: this is a jQuery selector of a link that fires the lightbox when clicked on (eg. ".feel")
-- **closeOnSave**: auto close lightbox if no validation errors (true/false)
-- **fixedSaveButton**: the Save button in the lightboxed admin is at the bottom. Setting this to true will set its position to fixed so it will be always visible in the top-right corner.
-- **wirePath**: path to ProcessWire "wire" directory (relative to domain root)
+Global options can be set in the module's settings.
+
+
+### Override global options using JavaScript
+
+To set custom global FEEL options, define a FEEL object to override default values:
+
+```javascript
+var FEEL = {
+    fixedSaveButton: false,
+    popupSettings: {	// Magnific Popup settings
+        enableEscapeKey: false
+    }
+};
+```
+
+Custom options should be defined before the module's JavaScript file is added to the page (eg. before `$(document).ready()`).
+
+### List of options
+
+- **closeOnSave**: auto close lightbox if no validation errors (true/false). Disabled in template edit mode (defaults to false).
+- **fixedSaveButton**: the Save button is at the bottom in the lightboxed admin. Setting this to true will set its position to fixed so it will be always visible in the top-right corner.
+- **enableTemplateEdit**: allow page template editing on ctrl-click (true/false)
 - **selectorsToHide**: list of selectors to hide elements from admin (for example some tabs)
-- **fieldHighlightStyle**: CSS rules to style target field (leave empty to disable)
+- **fieldHighlightStyle**: CSS declarations to style target field (leave empty to disable)
 - **popupSettings**: object containing Magnific Popup settings, see [Magnific Popup documentation](http://dimsemenov.com/plugins/magnific-popup/documentation.html#options)
 
-Styling
----------------------------------------
 
-Add classes to edit links to modify position and appearance:
+## Template edit mode
 
-- **mode**: feel-inline, feel-fixed, feel-absolute
-- **positioning**: feel-left, feel-top, feel-bottom
-- **size**: feel-small
-- **visual**: feel-invert
+If `enableTemplateEdit` option enabled you can edit the template of the page instead of the page itself. To do this, hold "ctrl" while clicking on the edit link.
 
-Examples:
+Note that `closeOnSave` option has no effect in this mode, the admin lightbox will not close on save.
 
-```php
-<a href="<?php echo $page->editUrl; ?>" class="feel feel-fixed feel-left feel-top">Edit</a>
 
-<a href="<?php echo $page->editUrl; ?>" class="feel feel-inline">#</a>
-```
+## Multilanguage awareness
 
-```php
-// jump to SEO keywords field under SEO tab (requires the MarkupSEO module)
-echo feel($page, "Click to edit SEO keywords", "fixed left top", "seo_keywords", "Inputfield_seo_tab");
-```
+The helper function takes the current language into account. For example, when browsing the German section of a multilanguage site the German tabs will be opened when the admin loads.
 
-Note that if you are using the helper function (see above) then you don't have to add the "feel-" prefixes.
 
-Troubleshooting
----------------------------------------
+## Troubleshooting
 
-- jQuery is required: it has to be added to your site.
-- Make sure the option "wirePath" points to a valid root. If your site is in a subdirectory, adjust accordingly
-(eg. wirePath: '/path/wire/').
+- Edit links don't appear: ensure you are logged in
+- Make sure the option "wirePath" points to a valid root. If your site is in a subdirectory, adjust it accordingly (eg. wirePath: '/path/wire/').
 - Edit links inherit formatting from the site's CSS: manually override these in your site's CSS.
 
 Forum: [https://processwire.com/talk/topic/10452-frontend-lightbox-admin-editor-simple/](https://processwire.com/talk/topic/10452-frontend-lightbox-admin-editor-simple/)
 
-License
----------------------------------------
+## License
 
-Licensed under the MIT license.
-
-FEEL is provided "as-is" without warranty of any kind, express, implied or otherwise, including without limitation, any warranty of merchantability or fitness for a particular purpose. In no event shall the author of this software be held liable for data loss, damages, loss of profits or any other kind of loss while using or misusing this software.
+Licensed under the MIT license. See the LICENSE file for de

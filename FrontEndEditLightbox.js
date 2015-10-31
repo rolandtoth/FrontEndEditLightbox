@@ -11,9 +11,8 @@ $(function () {
         enableTemplateEdit: true,  // allow page template editing on ctrl-click (true/false)
         selectorsToHide: '#_ProcessPageEditChildren, #_ProcessPageEditDelete, #_ProcessPageEditSettings, #_WireTabDelete',  // list of selectors to hide elements from admin
         fieldHighlightStyle: 'outline: 2px solid #89ADE2; outline-offset: -1px; z-index: 200; position: relative;',  // CSS declarations to style target field (leave empty to disable)
-        coreUrl: '/wire/',    // path to ProcessWire core (relative to domain root)
         closeConfirmText: 'Are you sure you want to close the editor?',
-        popupSettings: {    // settings to pass to Magnific Popup
+        popupOptions: {    // settings to pass to Magnific Popup
             closeBtnInside: false,
             fixedContentPos: true,
             enableEscapeKey: true,
@@ -22,6 +21,7 @@ $(function () {
             overflowY: 'hidden'
         }
     }, window.FEEL);
+
 
     FEEL.selector = 'feel';
 
@@ -41,7 +41,7 @@ $(function () {
             }
 
             var url = $(this).attr("data-mfp-src"),
-            //targetField = $(this).attr("data-target-field"),
+                targetField = $(this).attr("data-target-field"),
                 targetTab = $(this).attr("data-target-tab") ? $(this).attr("data-target-tab") : "";
 
             // page edit url is required
@@ -70,7 +70,7 @@ $(function () {
             localStorageKeyName = "FEELneedsReloadFlag";
 
         // extend Magnific Popup with user settings
-        $.extend(true, $.magnificPopup.defaults, FEEL.popupSettings);
+        $.extend(true, $.magnificPopup.defaults, FEEL.popupOptions);
 
         // initialize and open lightbox
         $(FEEL.selector).on('click', function (e) {
@@ -86,8 +86,8 @@ $(function () {
             // create new _FEEL object to avoid overwriting original
             $.extend(_FEEL, FEEL, customOptions ? JSON.parse(customOptions) : null);
 
-            // apply user popupSettings
-            $.extend(true, $.magnificPopup.defaults, _FEEL.popupSettings);
+            // apply user popupOptions
+            $.extend(true, $.magnificPopup.defaults, _FEEL.popupOptions);
 
             // set src to Template instead of Page if modifier key is pressed
             if (_FEEL.enableTemplateEdit && e.ctrlKey) {
@@ -197,20 +197,25 @@ $(function () {
                             }
 
                             // highlight field
-                            if (targetField && _FEEL.fieldHighlightStyle) {
+                            if (targetField) {
 
-                                var selector = '#wrap_';
+                                var selector = '#wrap_',
+                                    target;
 
                                 // try highlighting wrapper element first (that's above language tabs)
                                 if (!editForm.has("#wrap_" + targetField).length) {
                                     selector = "#";
                                 }
 
-                                var target = editForm.find(selector + targetField);
+                                target = editForm.find(selector + targetField);
 
                                 if (target.length) {
-                                    target.attr("style", _FEEL.fieldHighlightStyle);
-                                    $(adminIframe).contents().scrollTop(target.offset().top - 20);
+                                    if (_FEEL.fieldHighlightStyle) {
+                                        target.attr("style", _FEEL.fieldHighlightStyle);
+                                    }
+                                    setTimeout(function () {
+                                        $(adminIframe).contents().scrollTop(target.offset().top - 20);
+                                    }, 800)
                                 }
                             }
                         });
