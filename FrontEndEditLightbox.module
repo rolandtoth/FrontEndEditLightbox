@@ -1,0 +1,172 @@
+<?php
+
+/**
+ * Front-End Edit Lightbox (1.1.0)
+ * Edit pages on the frontend using lightboxed admin.
+ *
+ * @author Roland Toth <contact@rolandtoth.hu>
+ *
+ * @license The MIT License (MIT)
+ */
+
+
+/**
+ * todo
+ * docs: add uninstall info (remove all references from templates)
+ * docs faq: disable php error: if wire('modules')->isInstalled("FrontEndEditLightbox")
+ * docs faq: how to edit Children (add pagetable, see https://processwire.com/talk/topic/10452-front-end-edit-lightbox-feel-for-processwire/page-2)
+ * add images to docs
+ */
+
+/**
+ * Changelog
+ *
+ * BC: FEEL has rewritten as a module, usage mode changed ($page->feel(array(...)))
+ * new option: global disable
+ * fixed: wire("user")->language only available on multi-lang setups
+ * JS callback functions
+ * new: individual options on edit links
+ * new: edit page template on ctrl-click (optional, see enableTemplateEdit option)
+ * confirm iframe close if edit form has changed (uses the built-in admin notification message)
+ * changed edit link html element to "<feel>"
+ * wrapper element removed
+ * redesigned class system
+ * extendable FEEL options
+ * rewritten & extended docs
+ * make the helper function the recommended usage mode
+ * using join() to concat CSS strings instead of "+"
+ * using "all: initial" to reset all styles of edit links
+ *
+ */
+class FrontEndEditLightbox extends WireData implements Module, ConfigurableModule {
+
+    private $configData;
+
+    public function getModuleInfo() {
+        return array(
+            'title' => "Front-End Edit Lightbox",
+            'version' => "1.1.0",
+            'summary' => "Edit pages on the frontend using lightboxed admin.",
+            'author' => "Roland Toth",
+            'href' => "https://github.com/rolandtoth/FEEL",
+            'autoload' => true,
+            'singular' => true,
+            'permanent' => false,
+        );
+    }
+
+
+    static public function getModuleConfigInputfields(array $data) {
+
+        $modules = wire('modules');
+
+        $fields = new InputfieldWrapper();
+
+        $fieldset = new InputfieldFieldset();
+        $fieldset->label = __('General', __FILE__);
+
+        if (true) {
+            $field = $modules->get('InputfieldCheckbox');
+            $field->name = 'is_disabled';
+            $field->label = __('Disable globally', __FILE__);
+            $field->value = (isset($data['is_disabled'])) ? $data['is_disabled'] : 0;
+            $field->checked = ($field->value == 1) ? 'checked' : '';
+            $field->columnWidth = 100;
+            $fieldset->add($field);
+        }
+
+        $fields->add($fieldset);
+
+        return $fields;
+    }
+
+
+    public function init() {
+
+        $this->configData = $this->wire('modules')->getModuleConfigData($this);
+
+        if ($this->configData['is_disabled']) {
+            return false;
+        }
+
+        $this->addHookAfter("ProcessPageView::execute", $this, 'addAssets');
+    }
+
+
+    public function ready() {
+        $this->addHook("Page::feel", $this, 'addMethod');
+    }
+
+    /**
+     * Inject CSS/JS to page
+     *
+     * @param HookEvent $event
+     * @return bool
+     */
+    public function addAssets(HookEvent $event) {
+
+        if (!$this->_isPageAllowed($this->page)) {
+            return false;
+        }
+
+        $assetsFEEL = $this->wire('config')->urls->siteModules . __CLASS__ . '/' . __CLASS__;
+        $assetsMagnific = $this->wire('config')->urls->modules . 'Jquery/JqueryMagnific/JqueryMagnific';
+
+        $cssFEEL = '<link rel="stylesheet" media="screen" href="' . $assetsFEEL . '.min.css' . '">';
+        $jsFEEL = '<script src="' . $assetsFEEL . '.js' . '"></script>';
+
+        $cssMagnific = '<link rel="stylesheet" media="screen" href="' . $assetsMagnific . '.css' . '">';
+        $jsMagnific = '<script src="' . $assetsMagnific . '.js' . '"></script>';
+
+        $event->return = str_replace("</body>", $cssMagnific . $cssFEEL . $jsMagnific . $jsFEEL . "</body>", $event->return);
+
+        return false;
+    }
+
+
+    /**
+     * Add $page->feel() method
+     *
+     * @param HookEvent $event
+     * @return bool
+     */
+    public function addMethod(HookEvent $event) {
+
+        // method "feel" should still exist if module is disabled to avoid php error
+        if ($this->configData['is_disabled']) {
+            return false;
+        }
+
+        $page = $event->object;
+
+        if (!$this->_isPageAllowed($page)) {
+            return false;
+        }
+
+        $settings = $event->arguments[0];
+        $lang = $this->wire("user")->language ? '&language=' . $this->wire("user")->language->id : "";
+
+        $name = $settings['name'] ? $settings['name'] : '#';
+        $editUrl = ' data-mfp-src="' . $page->editUrl . $lang . '&modal=1"';
+        $templateId = ' data-template-id="' . $page->template->id . '"';
+        $class = $settings['class'] ? ' class="' . "feel-" . preg_replace("/\s/", " feel-", $settings['class']) . '"' : '';
+        $targetField = $settings['targetField'] ? ' data-target-field="Inputfield_' . $settings['targetField'] . '"' : '';
+        $targetTab = $settings['targetTab'] ? ' data-target-tab="' . $settings['targetTab'] . '"' : '';
+        $options = is_array($settings['options']) ? " data-options='" . json_encode($settings['options']) . "'" : "";
+
+        echo '<feel ' . $editUrl . $class . $targetField . $targetTab . $templateId . $options . ' style="display: none;">' . $name . '</feel>';
+
+        return true;
+    }
+
+    /**
+     * Check if page meets the requirements to show edit links
+     *
+     * @param $page
+     * @return bool
+     */
+    private function _isPageAllowed($page) {
+        return ($page instanceof Page && $page->editable() && $page->template != 'admin' && $this->wire('user')->isLoggedin());
+    }
+
+}

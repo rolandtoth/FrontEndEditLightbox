@@ -1,0 +1,130 @@
+/*!
+ * Front-End Edit Lightbox (FEEL) for ProcessWire
+ * https://goo.gl/wTeQ4z
+ */
+
+feel {
+    all: initial;
+    display: inline-block !important;
+    padding: 0;
+    margin: 0 0 0 3px;
+    vertical-align: middle;
+    font: normal normal normal 15px/1 sans-serif;
+    opacity: 0.3;
+    color: #000;
+    z-index: 999;
+    -webkit-transition: all 0.1s;
+    transition: all 0.1s;
+    -webkit-backface-visibility: hidden;
+    -backface-visibility: hidden;
+}
+
+feel:hover {
+    cursor: pointer;
+    opacity: 1;
+}
+
+.feel-fixed {
+    position: fixed;
+}
+
+.feel-absolute {
+    position: absolute;
+}
+
+.feel-relative {
+    position: relative;
+}
+
+.feel-top {
+    top: 0;
+}
+
+.feel-bottom {
+    bottom: 0;
+}
+
+.feel-right {
+    right: 0;
+}
+
+.feel-left {
+    left: 0;
+}
+
+.feel-small {
+    font-size: 13px;
+}
+
+.feel-button {
+    margin: 0;
+    padding: 10px 14px;
+    vertical-align: top;
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.feel-button.feel-small {
+    padding: 4px;
+}
+
+.feel-invert {
+    color: #fff;
+}
+
+.feel-invert.feel-button {
+    background: rgba(0, 0, 0, 0.5);
+    color: #fff;
+}
+
+.feel-button.feel-transparent {
+    background: transparent;
+}
+
+.mfp-feel .mfp-content {
+    background: #fff;
+    max-width: 90%;
+    max-height: 90%;
+}
+
+@keyframes mfp-spinner {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@-webkit-keyframes mfp-spinner {
+    to {
+        -webkit-transform: rotate(360deg);
+    }
+}
+
+.mfp-spinner {
+    min-width: 50px;
+    min-height: 50px;
+}
+
+.mfp-spinner:before {
+    content: "Loading�";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 48px;
+    height: 48px;
+    margin-top: -25px;
+    margin-left: -25px;
+}
+
+.mfp-spinner:not(:required):before {
+    content: "";
+    border-radius: 50%;
+    border: 1px solid #ccc;
+    border-top-color: #03ade0;
+    animation: mfp-spinner .6s linear infinite;
+    -webkit-animation: mfp-spinner .6s linear infinite;
+}
+
+@media print {
+    feel {
+        display: none;
+    }
+}
