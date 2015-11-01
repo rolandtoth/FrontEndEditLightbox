@@ -76,11 +76,12 @@ Using the code above will set "Edit page" for link text and classes "fixed" and 
 
 **List of available parameters:**
 
-- `$text`
-- `$class`
-- `$targetField`
-- `$targetTab`
-- `$overrides`
+- [Edit link text](#edit-link-text-`text`)
+- [Positioning classes](#positioning-classes-`class`)
+- [Target field](#target-field-`targetfield`)
+- [Target tab](#target-tab-`targettab`)
+- [Individual overrides](#individual-overrides-`overrides`)
+- [Popup options](#popup-options-`popupoptions`)
 
 ### Edit link text `text`
 
@@ -140,7 +141,7 @@ echo feel($page->feel(array(
 
 To find out tab IDs use the browser's Developer Tools (Inspector).
 
-### Overrides `overrides`
+### Individual overrides `overrides`
 
 You can override global options on individual edit links if you wish. To do that, pass an array with the custom options.
 
@@ -150,22 +151,24 @@ Individual options only affect the current edit link.
 
 ```php
 echo $page->feel(array(
-        "text" => Edit link with custom settings",
         "targetField" => "body",
         "overrides" => array(
             "closeOnSave" => false,
-            "fieldHighlightStyle" => "outline: 4px double #E83561;"
+            "fieldHighlightStyle" => "outline: 4px double red;"
         )
     )
 );
 ```
 
-*Example: disable template edit mode plus enable Magnific Popup to close on background click:*
+###Popup options `popupOptions`
+
+An array containing [Magnific Popup settings](http://dimsemenov.com/plugins/magnific-popup/documentation.html#options) settings you would like to set.
+
+*Example: enable Magnific Popup to close on background click:*
 
 ```php
 echo $page->feel(array(
 	"overrides" => array(
-        "enableTemplateEdit" => false,
         "popupOptions" => array(
             "closeOnBgClick" => true
         )
@@ -188,15 +191,14 @@ Global options can be set in the module's settings page.
 - **Fixed save button**: the Save button is at the bottom in the lightboxed admin. Setting this to true will set its position to fixed so it will be always visible in the top-right corner.
 - **Enable template edit**: allow page template editing on ctrl+click.
 - **Selectors to hide**: list of selectors to hide elements from admin (for example some tabs).
+- **Field highlight style**: CSS declarations to style target field (leave empty to disable).
 - **Close confirm message**: text to show on lightbox close if there are unsaved changes.
-- **fieldHighlightStyle**: CSS declarations to style target field (leave empty to disable).
-- **popupOptions**: an array containing Magnific Popup settings, see [Magnific Popup documentation](http://dimsemenov.com/plugins/magnific-popup/documentation.html#options).
 
 ###JavaScript
 
 ####Override global options using JavaScript
 
-Besides module options, FEEL options can be set using JavaScript. Option names will become camelCase.
+Besides global module options, FEEL options can be also set using JavaScript. Option names will become camelCase.
 
 To set custom global FEEL options, define a FEEL object to override default values.
 
