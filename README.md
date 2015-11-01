@@ -57,6 +57,14 @@ Requires jQuery and uses [Magnific Popup](http://dimsemenov.com/plugins/magnific
 
 1. Set link text, positioning/styling classes, target field or tab, etc using [parameters](#parameters).
 
+## Uninstall
+
+1. Remove (or comment out) all instances of module reference in your template files.
+2. Uninstall the module.
+
+Note: on the module settings page there is an "Enable module" toggle. Use this to disable edit links in your templates globally.
+
+
 ## Parameters
 
 You can control how should edit links appear and behave passing an array parameters to the `feel()` method:
