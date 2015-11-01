@@ -11,7 +11,7 @@ $(function () {
         enableTemplateEdit: true,  // allow page template editing on ctrl-click (true/false)
         selectorsToHide: '#_ProcessPageEditChildren, #_ProcessPageEditDelete, #_ProcessPageEditSettings, #_WireTabDelete',  // list of selectors to hide elements from admin
         fieldHighlightStyle: 'outline: 2px solid #89ADE2; outline-offset: -1px; z-index: 200; position: relative;',  // CSS declarations to style target field (leave empty to disable)
-        closeConfirmText: 'Are you sure you want to close the editor?',
+        closeConfirmMessage: 'Are you sure you want to close the editor?', // text to show on lightbox close if there are unsaved changes
         popupOptions: {    // settings to pass to Magnific Popup
             closeBtnInside: false,
             fixedContentPos: true,
@@ -20,7 +20,7 @@ $(function () {
             preloader: false,
             overflowY: 'hidden'
         }
-    }, window.FEEL);
+    }, window.FEEL_defaults);
 
 
     FEEL.selector = 'feel';
@@ -64,6 +64,10 @@ $(function () {
                 })) {
                 return false;
             }
+
+            // remove display: none !important;
+            $(this).removeAttr('style');
+
         });
 
         var adminIframe = "iframe.mfp-iframe",
@@ -79,12 +83,12 @@ $(function () {
 
             var iframeSrc = $(this).attr('data-mfp-src'),
                 targetField = $(this).attr('data-target-field'),
-                customOptions = $(this).attr('data-options'),
+                overrides = $(this).attr('data-overrides'),
                 _FEEL = {},
                 adminMode = 'page';
 
             // create new _FEEL object to avoid overwriting original
-            $.extend(_FEEL, FEEL, customOptions ? JSON.parse(customOptions) : null);
+            $.extend(_FEEL, FEEL, overrides ? JSON.parse(overrides) : null);
 
             // apply user popupOptions
             $.extend(true, $.magnificPopup.defaults, _FEEL.popupOptions);
@@ -132,7 +136,7 @@ $(function () {
                                 return false;
                             }
 
-                            if (unsavedMsg && !confirm(unsavedMsg + '\n\n' + FEEL.closeConfirmText)) {
+                            if (unsavedMsg && !confirm(unsavedMsg + '\n\n' + FEEL.closeConfirmMessage)) {
                                 return false;
                             }
 

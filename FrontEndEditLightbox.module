@@ -22,11 +22,12 @@
  * Changelog
  *
  * rewritten as a module, usage mode changed ($page->feel(array(...)))
+ * array format for settings (options can be accessed via their names)
  * new option: "Enable module" - toggle FEEL on/off globally
  * new option: confirm iframe close if edit form has changed (only on Pages, uses the built-in admin notification message)
  * fixed: wire("user")->language only available on multi-lang setups
  * JS callback functions
- * new: individual options on edit links
+ * new: override options on individual edit links
  * new: edit page template on ctrl-click (optional, see enableTemplateEdit option)
  * changed edit link html element to "<feel>"
  * wrapper element removed
@@ -126,13 +127,13 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
             $fieldset->add($field);
 
             $field = $modules->get('InputfieldText');
-            $defaultCloseConfirmText = __('Are you sure you want to close the editor?', __FILE__);
-            $name = 'close_confirm_text';
+            $defaultCloseConfirmMessage = __('Are you sure you want to close the editor?', __FILE__);
+            $name = 'close_confirm_message';
             $field->name = $name;
-            $field->label = __('Close confirm text', __FILE__);
+            $field->label = __('Close confirm message', __FILE__);
             $field->description = __('Confirmation message to show on closing the lightbox with unsaved changes.', __FILE__);
-            $field->notes = __('Example:', __FILE__) . ' ' . $defaultCloseConfirmText;
-            $field->value = (isset($data[$name]) && !empty($data[$name])) ? $data[$name] : $defaultCloseConfirmText;
+            $field->notes = __('Example:', __FILE__) . ' ' . $defaultCloseConfirmMessage;
+            $field->value = (isset($data[$name]) && !empty($data[$name])) ? $data[$name] : $defaultCloseConfirmMessage;
             $field->columnWidth = 100;
             $fieldset->add($field);
         }
@@ -182,14 +183,14 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
         $cssMagnific = '<link rel="stylesheet" media="screen" href="' . $assetsMagnific . '.css' . '">';
         $jsMagnific = '<script src="' . $assetsMagnific . '.js' . '"></script>';
 
-        $jsOptions = '<script>var FEEL = ' . json_encode(
+        $jsOptions = '<script>var FEEL_defaults = ' . json_encode(
                 array(
                     'closeOnSave' => isset($configData['close_on_save']) ? (bool)$configData['close_on_save'] : true,
                     'fixedSaveBbutton' => isset($configData['fixed_save_button']) ? (bool)$configData['fixed_save_button'] : true,
                     'enableTemplateEdit' => isset($configData['enable_template_edit']) ? (bool)$configData['enable_template_edit'] : true,
                     'selectorsToHide' => isset($configData['selectors_to_hide']) ? $configData['selectors_to_hide'] : "",
                     'fieldHighlightStyle' => isset($configData['field_highlight_style']) ? $configData['field_highlight_style'] : "",
-                    'closeConfirmText' => isset($configData['close_confirm_text']) ? $configData['close_confirm_text'] : ""
+                    'CloseConfirmMessage' => isset($configData['close_confirm_message']) ? $configData['close_confirm_message'] : ""
                 )
             ) . '</script>';
 
@@ -225,12 +226,12 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
         $class =  isset($settings['class']) ? ' class="' . "feel-" . preg_replace("/\s/", " feel-", $settings['class']) . '"' : '';
         $targetField =  isset($settings['targetField']) ? ' data-target-field="Inputfield_' . $settings['targetField'] . '"' : '';
         $targetTab =  isset($settings['targetTab']) ? ' data-target-tab="' . $settings['targetTab'] . '"' : '';
-        $options = (isset($settings['options']) && is_array($settings['options'])) ? " data-options='" . json_encode($settings['options']) . "'" : "";
+        $overrides = (isset($settings['overrides']) && is_array($settings['overrides'])) ? " data-overrides='" . json_encode($settings['overrides']) . "'" : "";
 
         $editUrl = ' data-mfp-src="' . $page->editUrl . $lang . '&modal=1"';
         $templateId = ' data-template-id="' . $page->template->id . '"';
 
-        $event->return = '<feel' . $editUrl . $class . $targetField . $targetTab . $templateId . $options . ' style="display: none;">' . $name . '</feel>';
+        $event->return = '<feel' . $editUrl . $class . $targetField . $targetTab . $templateId . $overrides . ' style="display: none !important;">' . $name . '</feel>';
     }
 
     /**

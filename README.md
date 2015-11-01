@@ -7,15 +7,16 @@ Requires jQuery and uses [Magnific Popup](http://dimsemenov.com/plugins/magnific
 
 ## Features
 
-- add edit links to templates using $page->feel() ($page can be any Page object)
+- add edit links to templates using $page->feel() where $page can be any Page object
 - open admin in a lightbox
 - reload page only if page was saved
 - auto-close lightbox on save if no errors (optional)
-- edit page template on ctrl-click
+- edit page template on ctrl+click (optional)
 - load language tabs of the language currently browsed
 - jump directly to an admin field or tab
 - hide elements from the admin using jQuery selectors
 - edit page template on ctrl+click (optional)
+- confirm lightbox close if there are unsaved changes
 - configurable lightbox properties
 - edit link positioning helper classes
 - fail-safe: utilizes native ProcessWire operations only
@@ -79,13 +80,13 @@ Using the code above will set "Edit page" for link text and classes "fixed" and 
 - `$class`
 - `$targetField`
 - `$targetTab`
-- `$options`
+- `$overrides`
 
-### Edit link text ($text)
+### Edit link text `text`
 
 This is the text of the edit link that will appear on the page. If not set, defaults to the "#" character.
 
-### Positioning classes ($class)
+### Positioning classes `class`
 
 By default edit links appear inline and with black font color. You can use the following classes to modify their position and appearance:
 
@@ -101,27 +102,37 @@ By default edit links appear inline and with black font color. You can use the f
 *Example: set edit link to appear as a button in the bottom-left corner of the browser window, with black background and white font color:*
 
 ```php
-if (function_exists("feel")) {
-	echo feel($page, 0, "fixed bottom left button invert");
-}
+echo $page->feel("class" => "fixed bottom left button invert");
 ```
 
 Please note that fixed positioned edit links will overlap if placed to the same position, eg. adding two edit links with classes "fixed top left".
 
-### Target field and target tab ($targetField, $targetTab)
+### Target field `targetField`
 
-Parameters **targetField** and **targetTab** are field names and tab CSS IDs. If set, the admin will jump to this field or tab.
+**targetField** is the ProcessWire field name where the admin should jump on opening.
 
 This can come handy if you would like to open the admin right at a given field.
 It also adds a small highlight (outline) to the field to make it easier to find (see "fieldHighlightStyle" option to modify or disable).
 
-*Example: jump to SEO keywords field under SEO tab (requires the MarkupSEO module):*
+*Example: jump to the "images" field:*
 
 ```php
 echo feel($page->feel(array(
-	"text" => "Click to edit SEO keywords",
-    "class" => "fixed left top",
-    "targetField" => "seo_keywords",
+	"text" => "Click to edit images",
+    "targetField" => "images"
+    )
+);
+```
+
+### Target tab `targetTab`
+
+**targetTab** is the CSS ID of the tab to activate on loading the admin.
+
+*Example: activate the SEO tab (requires the MarkupSEO module):*
+
+```php
+echo feel($page->feel(array(
+	"text" => "Click to edit SEO options",
     "targetTab" => "#Inputfield_seo_tab"
     )
 );
@@ -129,7 +140,7 @@ echo feel($page->feel(array(
 
 To find out tab IDs use the browser's Developer Tools (Inspector).
 
-### Options
+### Overrides `overrides`
 
 Per edit link options can be set here.
 
@@ -143,7 +154,7 @@ Individual options only affect the current edit link.
 echo $page->feel(array(
         "text" => Edit link with custom settings",
         "targetField" => "body",
-        "options" => array(
+        "overrides" => array(
             "closeOnSave" => false,
             "fieldHighlightStyle" => "outline: 4px double #E83561;"
         )
@@ -155,7 +166,7 @@ echo $page->feel(array(
 
 ```php
 echo $page->feel(array(
-	"options" => array(
+	"overrides" => array(
         "enableTemplateEdit" => false,
         "popupOptions" => array(
             "closeOnBgClick" => true
@@ -166,14 +177,30 @@ echo $page->feel(array(
 
 ## Options
 
-## Global options
+### Global options
 
 Global options can be set in the module's settings.
 
+**Available options:**
 
-### Override global options using JavaScript
+- **Enable module**: global toggle to enable/disable module.
+- **Close on save**: auto close lightbox if no validation errors. Disabled in template edit mode (defaults to false).
+- **Fixed save button**: the Save button is at the bottom in the lightboxed admin. Setting this to true will set its position to fixed so it will be always visible in the top-right corner.
+- **Enable template edit**: allow page template editing on ctrl+click.
+- **Selectors to hide**: list of selectors to hide elements from admin (for example some tabs).
+- **Close confirm message**: text to show on lightbox close if there are unsaved changes.
+- **fieldHighlightStyle**: CSS declarations to style target field (leave empty to disable).
+- **popupOptions**: an array containing Magnific Popup settings, see [Magnific Popup documentation](http://dimsemenov.com/plugins/magnific-popup/documentation.html#options).
 
-To set custom global FEEL options, define a FEEL object to override default values:
+###JavaScript
+
+####Override global options using JavaScript
+
+Besides module options, FEEL options can be set using JavaScript. Option names will become camelCase.
+
+To set custom global FEEL options, define a FEEL object to override default values.
+
+*Example: disable fixed save button and disable the ESC key on the lightbox:*
 
 ```javascript
 var FEEL = {
@@ -184,23 +211,49 @@ var FEEL = {
 };
 ```
 
-Custom options should be defined before the module's JavaScript file is added to the page (eg. before `$(document).ready()`).
+### JavaScript callbacks
 
-### List of options
+**List of available callbacks:**
 
-- **closeOnSave**: auto close lightbox if no validation errors (true/false). Disabled in template edit mode (defaults to false).
-- **fixedSaveButton**: the Save button is at the bottom in the lightboxed admin. Setting this to true will set its position to fixed so it will be always visible in the top-right corner.
-- **enableTemplateEdit**: allow page template editing on ctrl-click (true/false)
-- **selectorsToHide**: list of selectors to hide elements from admin (for example some tabs)
-- **fieldHighlightStyle**: CSS declarations to style target field (leave empty to disable)
-- **popupOptions**: an array containing Magnific Popup settings, see [Magnific Popup documentation](http://dimsemenov.com/plugins/magnific-popup/documentation.html#options)
+- onInit
+- onEditLinkInit
+- onEditLinkReady
+- onIframeInit
+- onIframeReady
+- onIframeClose
+
+Documentation of callbacks is in progress.
+
+*Example*:
+
+```javascript
+var FEEL = {
+    onEditLinkReady: function (o) {
+        console.log('Edit link added with source: ' + o.obj.attr('data-mfp-src'));
+    }
+};
+```
+
+Using `return false;` in callbacks will stop script execution.
+
+*Example: disable adding edit links if document body has "lang-klingon" class:*
+
+```javascript
+var FEEL = {
+    onInit: function (o) {
+        if($('body').hasClass('lang-klingon')) {
+        	return false;
+        }
+    }
+};
+```
 
 
 ## Template edit mode
 
-If `enableTemplateEdit` option enabled you can edit the template of the page instead of the page itself. To do this, hold "ctrl" while clicking on the edit link.
+If `Enable template edit` option is enabled you can edit the template of the page instead of the page itself. To do this, hold the `control` button while clicking on the edit link.
 
-Note that `closeOnSave` option has no effect in this mode, the admin lightbox will not close on save.
+Note that `Close on save` option has no effect in this mode, the admin lightbox will not close on save.
 
 
 ## Multilanguage awareness
@@ -210,8 +263,8 @@ The helper function takes the current language into account. For example, when b
 
 ## Troubleshooting
 
-- Edit links don't appear: ensure you are logged in and pages are editable with your role
-- Edit links inherit formatting from the site's CSS: manually override these in your site's CSS
+- Edit links don't appear: ensure you are logged in and pages are editable with your role.
+- Edit links inherit formatting from the site's CSS: manually override these in your site's CSS.
 
 Forum: [https://processwire.com/talk/topic/10452-frontend-lightbox-admin-editor-simple/](https://processwire.com/talk/topic/10452-frontend-lightbox-admin-editor-simple/)
 
