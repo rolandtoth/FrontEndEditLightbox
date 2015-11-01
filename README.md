@@ -142,8 +142,6 @@ To find out tab IDs use the browser's Developer Tools (Inspector).
 
 ### Overrides `overrides`
 
-Per edit link options can be set here.
-
 You can override global options on individual edit links if you wish. To do that, pass an array with the custom options.
 
 Individual options only affect the current edit link.
