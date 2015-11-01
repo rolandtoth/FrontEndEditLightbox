@@ -62,7 +62,7 @@ Requires jQuery and uses [Magnific Popup](http://dimsemenov.com/plugins/magnific
 1. Remove (or comment out) all instances of module reference in your template files.
 2. Uninstall the module.
 
-Note: on the module settings page there is an "Enable module" toggle. Use this to disable edit links in your templates globally.
+Note: on the module settings page there is an "Enable module" toggle. Use this to disable edit links in your templates globally, without needing to uninstall completely.
 
 
 ## Parameters
@@ -84,12 +84,12 @@ Using the code above will set "Edit page" for link text and classes "fixed" and 
 
 **List of available parameters:**
 
-- [Edit link text](#edit-link-text-`text`)
-- [Positioning classes](#positioning-classes-`class`)
-- [Target field](#target-field-`targetfield`)
-- [Target tab](#target-tab-`targettab`)
-- [Individual overrides](#individual-overrides-`overrides`)
-- [Popup options](#popup-options-`popupoptions`)
+- [Edit link text](#edit-link-text-text)
+- [Positioning classes](#positioning-classes-class)
+- [Target field](#target-field-targetfield)
+- [Target tab](#target-tab-targettab)
+- [Individual overrides](#individual-overrides-overrides)
+- [Popup options](#popup-options-popupoptions)
 
 ### Edit link text `text`
 
