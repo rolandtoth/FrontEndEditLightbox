@@ -177,7 +177,9 @@ echo $page->feel(array(
 
 ### Global options
 
-Global options can be set in the module's settings.
+Global options can be set in the module's settings page.
+
+![FEEL options](https://github.com/rolandtoth/FrontEndEditLightbox/raw/master/screens/FEEL-settings.png)
 
 **Available options:**
 
