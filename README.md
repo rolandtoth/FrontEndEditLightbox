@@ -54,34 +54,34 @@ Requires jQuery and uses [Magnific Popup](http://dimsemenov.com/plugins/magnific
     echo $pages->get("/our-services/")->feel();
     ```
 
-1. Set link name, positioning/styling classes, target field or tab, etc using [parameters](#parameters).
+1. Set link text, positioning/styling classes, target field or tab, etc using [parameters](#parameters).
 
 ## Parameters
 
-You can control how should edit links appear and behave using parameters:
+You can control how should edit links appear and behave passing an array parameters to the `feel()` method:
 
 ```php
 <?php
 echo $page->feel(array(
-    "name" => "Edit page",
-    "class" => fixed left",
+    "text" => "Edit page",
+    "class" => "fixed left",
     "targetField" => "images"
     )
 );
 ?>
 ```
 
-Using the code above will set "Edit page" for link name and classes "fixed" and "left". It also sets target field to "images", which will scroll into view and gets highlighted when the admin loads.
+Using the code above will set "Edit page" for link text and classes "fixed" and "left". It also sets target field to "images", which will scroll into view and gets highlighted when the admin loads.
 
 **List of available parameters:**
 
-- `$name`
+- `$text`
 - `$class`
 - `$targetField`
 - `$targetTab`
 - `$options`
 
-### Edit link name ($name)
+### Edit link text ($text)
 
 This is the text of the edit link that will appear on the page. If not set, defaults to the "#" character.
 
@@ -110,7 +110,7 @@ Please note that fixed positioned edit links will overlap if placed to the same 
 
 ### Target field and target tab ($targetField, $targetTab)
 
-Parameters **targetField** and **targetTab** are field and tab CSS admin IDs. If set, the admin will jump to this field or tab.
+Parameters **targetField** and **targetTab** are field names and tab CSS IDs. If set, the admin will jump to this field or tab.
 
 This can come handy if you would like to open the admin right at a given field.
 It also adds a small highlight (outline) to the field to make it easier to find (see "fieldHighlightStyle" option to modify or disable).
@@ -119,15 +119,13 @@ It also adds a small highlight (outline) to the field to make it easier to find 
 
 ```php
 echo feel($page->feel(array(
-	"name" => "Click to edit SEO keywords",
+	"text" => "Click to edit SEO keywords",
     "class" => "fixed left top",
     "targetField" => "seo_keywords",
-    "targetTab" => "Inputfield_seo_tab"
+    "targetTab" => "#Inputfield_seo_tab"
     )
 );
 ```
-
-Note that you do not have to add the "#" characters for IDs.
 
 To find out tab IDs use the browser's Developer Tools (Inspector).
 
@@ -143,7 +141,8 @@ Individual options only affect the current edit link.
 
 ```php
 echo $page->feel(array(
-        "name" => Edit link with custom settings",
+        "text" => Edit link with custom settings",
+        "targetField" => "body",
         "options" => array(
             "closeOnSave" => false,
             "fieldHighlightStyle" => "outline: 4px double #E83561;"
@@ -158,7 +157,7 @@ echo $page->feel(array(
 echo $page->feel(array(
 	"options" => array(
         "enableTemplateEdit" => false,
-        "popupSettings" => array(
+        "popupOptions" => array(
             "closeOnBgClick" => true
         )
     )
@@ -179,7 +178,7 @@ To set custom global FEEL options, define a FEEL object to override default valu
 ```javascript
 var FEEL = {
     fixedSaveButton: false,
-    popupSettings: {	// Magnific Popup settings
+    popupOptions: {	// Magnific Popup settings
         enableEscapeKey: false
     }
 };
@@ -194,7 +193,7 @@ Custom options should be defined before the module's JavaScript file is added to
 - **enableTemplateEdit**: allow page template editing on ctrl-click (true/false)
 - **selectorsToHide**: list of selectors to hide elements from admin (for example some tabs)
 - **fieldHighlightStyle**: CSS declarations to style target field (leave empty to disable)
-- **popupSettings**: object containing Magnific Popup settings, see [Magnific Popup documentation](http://dimsemenov.com/plugins/magnific-popup/documentation.html#options)
+- **popupOptions**: an array containing Magnific Popup settings, see [Magnific Popup documentation](http://dimsemenov.com/plugins/magnific-popup/documentation.html#options)
 
 
 ## Template edit mode
@@ -211,12 +210,11 @@ The helper function takes the current language into account. For example, when b
 
 ## Troubleshooting
 
-- Edit links don't appear: ensure you are logged in
-- Make sure the option "wirePath" points to a valid root. If your site is in a subdirectory, adjust it accordingly (eg. wirePath: '/path/wire/').
-- Edit links inherit formatting from the site's CSS: manually override these in your site's CSS.
+- Edit links don't appear: ensure you are logged in and pages are editable with your role
+- Edit links inherit formatting from the site's CSS: manually override these in your site's CSS
 
 Forum: [https://processwire.com/talk/topic/10452-frontend-lightbox-admin-editor-simple/](https://processwire.com/talk/topic/10452-frontend-lightbox-admin-editor-simple/)
 
 ## License
 
-Licensed under the MIT license. See the LICENSE file for de
+Licensed under the MIT license. See the LICENSE file for details.

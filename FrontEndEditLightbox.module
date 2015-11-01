@@ -12,7 +12,6 @@
 
 /**
  * todo
- * move JS settings out to module settings
  * docs: add uninstall info (remove all references from templates)
  * docs faq: disable php error: if wire('modules')->isInstalled("FrontEndEditLightbox")
  * docs faq: how to edit Children (add pagetable, see https://processwire.com/talk/topic/10452-front-end-edit-lightbox-feel-for-processwire/page-2)
@@ -204,7 +203,7 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
      * Add $page->feel() method
      *
      * @param HookEvent $event
-     * @return bool
+     * @return string
      */
     public function addMethod(HookEvent $event) {
 
@@ -231,9 +230,7 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
         $editUrl = ' data-mfp-src="' . $page->editUrl . $lang . '&modal=1"';
         $templateId = ' data-template-id="' . $page->template->id . '"';
 
-        echo '<feel ' . $editUrl . $class . $targetField . $targetTab . $templateId . $options . ' style="display: none;">' . $name . '</feel>';
-
-        return true;
+        $event->return = '<feel' . $editUrl . $class . $targetField . $targetTab . $templateId . $options . ' style="display: none;">' . $name . '</feel>';
     }
 
     /**
