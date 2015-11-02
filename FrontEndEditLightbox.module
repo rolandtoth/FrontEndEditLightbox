@@ -43,7 +43,7 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
     public static function getModuleInfo() {
         return array(
             'title' => "Front-End Edit Lightbox",
-            'version' => "1.1.0",
+            'version' => "1.1.1",
             'summary' => "Edit pages on the frontend using lightboxed admin.",
             'author' => "Roland Toth",
             'href' => "https://github.com/rolandtoth/FrontEndEditLightbox",
@@ -178,7 +178,7 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
         $assetsFEEL = $this->wire('config')->urls->siteModules . __CLASS__ . '/' . __CLASS__;
         $assetsMagnific = $this->wire('config')->urls->modules . 'Jquery/JqueryMagnific/JqueryMagnific';
 
-        $cssFEEL = '<link rel="stylesheet" media="screen" href="' . $assetsFEEL . '.min.css' . '">';
+        $cssFEEL = '<link rel="stylesheet" media="screen" href="' . $assetsFEEL . '.css' . '">';
         $jsFEEL = '<script src="' . $assetsFEEL . '.js' . '"></script>';
 
         $cssMagnific = '<link rel="stylesheet" media="screen" href="' . $assetsMagnific . '.css' . '">';
@@ -223,7 +223,7 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
         $settings = $event->arguments[0];
         $lang = $this->wire("user")->language ? '&language=' . $this->wire("user")->language->id : "";
 
-        $name = isset($settings['name']) ? $settings['name'] : '#';
+        $text = isset($settings['text']) ? $settings['text'] : '#';
         $class =  isset($settings['class']) ? ' class="' . "feel-" . preg_replace("/\s/", " feel-", $settings['class']) . '"' : '';
         $targetField =  isset($settings['targetField']) ? ' data-target-field="Inputfield_' . $settings['targetField'] . '"' : '';
         $targetTab =  isset($settings['targetTab']) ? ' data-target-tab="' . $settings['targetTab'] . '"' : '';
@@ -232,7 +232,7 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
         $editUrl = ' data-mfp-src="' . $page->editUrl . $lang . '&modal=1"';
         $templateId = ' data-template-id="' . $page->template->id . '"';
 
-        $event->return = '<feel' . $editUrl . $class . $targetField . $targetTab . $templateId . $overrides . ' style="display: none !important;">' . $name . '</feel>';
+        $event->return = '<feel' . $editUrl . $class . $targetField . $targetTab . $templateId . $overrides . ' style="display: none !important;">' . $text . '</feel>';
     }
 
     /**
