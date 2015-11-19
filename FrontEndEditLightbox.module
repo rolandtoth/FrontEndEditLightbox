@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Front-End Edit Lightbox (1.1.0)
+ * Front-End Edit Lightbox (1.1.2)
  * Edit pages on the frontend using lightboxed admin.
  *
  * @author Roland Toth <contact@rolandtoth.hu>
@@ -9,32 +9,8 @@
  * @license The MIT License (MIT)
  */
 
-
 /**
- * todo
- * docs: add uninstall info (remove all references from templates)
- * docs faq: disable php error: if wire('modules')->isInstalled("FrontEndEditLightbox")
- * docs faq: how to edit Children (add pagetable, see https://processwire.com/talk/topic/10452-front-end-edit-lightbox-feel-for-processwire/page-2)
- * add images to docs
- */
-
-/**
- * Changelog
- *
- * rewritten as a module, usage mode changed to $page->feel()
- * array format for options (options can be accessed by their names)
- * new option: "Enable module" - toggle module on/off globally
- * new option: confirm iframe close if edit form has changed (only on Pages, uses the built-in admin notification message)
- * fixed: wire("user")->language only available on multi-lang setups
- * JS callback functions
- * new: override options on individual edit links
- *
- * new: edit page template on ctrl-click (optional, see enableTemplateEdit option)
- * changed edit link html element to "<feel>"
- * wrapper element removed
- * redesigned class system
- * extendable FEEL options
- *
+ * Class FrontEndEditLightbox
  */
 class FrontEndEditLightbox extends WireData implements Module, ConfigurableModule {
 
@@ -43,7 +19,7 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
     public static function getModuleInfo() {
         return array(
             'title' => "Front-End Edit Lightbox",
-            'version' => "1.1.1",
+            'version' => "1.1.2",
             'summary' => "Edit pages on the frontend using lightboxed admin.",
             'author' => "Roland Toth",
             'href' => "https://github.com/rolandtoth/FrontEndEditLightbox",
@@ -73,71 +49,79 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
         $fieldset->label = __('Options', __FILE__);
         $fieldset->showIf = 'is_enabled=1';
 
-        if (true) {
+        $field = $modules->get('InputfieldCheckbox');
+        $name = 'close_on_save';
+        $field->name = $name;
+        $field->label = __('Close on save', __FILE__);
+        $field->notes = __('Auto close lightbox on save if no validation error occurs.', __FILE__);
+        $field->value = isset($data[$name]) ? $data[$name] : 1;
+        $field->checked = ($field->value === 1) ? 'checked' : '';
+        $field->columnWidth = 34;
+        $fieldset->add($field);
 
-            $field = $modules->get('InputfieldCheckbox');
-            $name = 'close_on_save';
-            $field->name = $name;
-            $field->label = __('Close on save', __FILE__);
-            $field->notes = __('Auto close lightbox on save if no validation error occurs.', __FILE__);
-            $field->value = isset($data[$name]) ? $data[$name] : 1;
-            $field->checked = ($field->value === 1) ? 'checked' : '';
-            $field->columnWidth = 34;
-            $fieldset->add($field);
+        $field = $modules->get('InputfieldCheckbox');
+        $name = 'fixed_save_button';
+        $field->name = $name;
+        $field->label = __('Fixed save button', __FILE__);
+        $field->notes = __('Stick the save button to the top-right corner for easier access.', __FILE__);
+        $field->value = isset($data[$name]) ? $data[$name] : 1;
+        $field->checked = ($field->value === 1) ? 'checked' : '';
+        $field->columnWidth = 33;
+        $fieldset->add($field);
 
-            $field = $modules->get('InputfieldCheckbox');
-            $name = 'fixed_save_button';
-            $field->name = $name;
-            $field->label = __('Fixed save button', __FILE__);
-            $field->notes = __('Stick the save button to the top-right corner for easier access.', __FILE__);
-            $field->value = isset($data[$name]) ? $data[$name] : 1;
-            $field->checked = ($field->value === 1) ? 'checked' : '';
-            $field->columnWidth = 33;
-            $fieldset->add($field);
+        $field = $modules->get('InputfieldCheckbox');
+        $name = 'enable_template_edit';
+        $field->name = $name;
+        $field->label = __('Enable template edit', __FILE__);
+        $field->notes = __('Allow editing page template ctrl+clicking on the edit link.', __FILE__);
+        $field->value = isset($data[$name]) ? $data[$name] : 1;
+        $field->checked = ($field->value === 1) ? 'checked' : '';
+        $field->columnWidth = 33;
+        $fieldset->add($field);
 
-            $field = $modules->get('InputfieldCheckbox');
-            $name = 'enable_template_edit';
-            $field->name = $name;
-            $field->label = __('Enable template edit', __FILE__);
-            $field->notes = __('Allow editing page template ctrl+clicking on the edit link.', __FILE__);
-            $field->value = isset($data[$name]) ? $data[$name] : 1;
-            $field->checked = ($field->value === 1) ? 'checked' : '';
-            $field->columnWidth = 33;
-            $fieldset->add($field);
+        $field = $modules->get('InputfieldText');
+        $defaultSelectorsToHide = '#_ProcessPageEditChildren, #_ProcessPageEditDelete, #_ProcessPageEditSettings, #_WireTabDelete';
+        $name = 'selectors_to_hide';
+        $field->name = $name;
+        $field->label = __('Selectors to hide', __FILE__);
+        $field->description = __('Comma-separated list of CSS selectors to hide elements from the admin.', __FILE__);
+        $field->notes = __('Recommended:', __FILE__) . ' ' . $defaultSelectorsToHide;
+        $field->value = (isset($data[$name]) && !empty($data[$name])) ? $data[$name] : $defaultSelectorsToHide;
+        $field->columnWidth = 100;
+        $fieldset->add($field);
 
-            $field = $modules->get('InputfieldText');
-            $defaultSelectorsToHide = '#_ProcessPageEditChildren, #_ProcessPageEditDelete, #_ProcessPageEditSettings, #_WireTabDelete';
-            $name = 'selectors_to_hide';
-            $field->name = $name;
-            $field->label = __('Selectors to hide', __FILE__);
-            $field->description = __('Comma-separated list of CSS selectors to hide elements from the admin.', __FILE__);
-            $field->notes = __('Recommended:', __FILE__) . ' ' . $defaultSelectorsToHide;
-            $field->value = (isset($data[$name]) && !empty($data[$name])) ? $data[$name] : $defaultSelectorsToHide;
-            $field->columnWidth = 100;
-            $fieldset->add($field);
+        $field = $modules->get('InputfieldText');
+        $defaultFieldHighlightStyle = 'outline: 2px solid #89ADE2; outline-offset: -1px; z-index: 200; position: relative;';
+        $name = 'field_highlight_style';
+        $field->name = $name;
+        $field->label = __('Field highlight style', __FILE__);
+        $field->description = __('CSS declarations to style target field. Leave empty to disable.', __FILE__);
+        $field->notes = __('Default:', __FILE__) . ' ' . $defaultFieldHighlightStyle;
+        $field->value = isset($data[$name]) ? $data[$name] : $defaultFieldHighlightStyle;
+        $field->columnWidth = 100;
+        $fieldset->add($field);
 
-            $field = $modules->get('InputfieldText');
-            $defaultFieldHighlightStyle = 'outline: 2px solid #89ADE2; outline-offset: -1px; z-index: 200; position: relative;';
-            $name = 'field_highlight_style';
-            $field->name = $name;
-            $field->label = __('Field highlight style', __FILE__);
-            $field->description = __('CSS declarations to style target field. Leave empty to disable.', __FILE__);
-            $field->notes = __('Default:', __FILE__) . ' ' . $defaultFieldHighlightStyle;
-            $field->value = isset($data[$name]) ? $data[$name] : $defaultFieldHighlightStyle;
-            $field->columnWidth = 100;
-            $fieldset->add($field);
+        $field = $modules->get('InputfieldTextarea');
+        $name = 'style_overrides';
+        $field->name = $name;
+        $field->label = __('Style overrides', __FILE__);
+        $field->description = __('Custom CSS to override styles.', __FILE__);
+        $field->attr('placeholder', '.mfp-wrap.mfp-feel .mfp-content { max-width: 100%; max-height: 100%; }');
+        $field->value = isset($data[$name]) ? $data[$name] : '';
+        $field->columnWidth = 100;
+        $field->rows = 6;
+        $fieldset->add($field);
 
-            $field = $modules->get('InputfieldText');
-            $defaultCloseConfirmMessage = __('Are you sure you want to close the editor?', __FILE__);
-            $name = 'close_confirm_message';
-            $field->name = $name;
-            $field->label = __('Close confirm message', __FILE__);
-            $field->description = __('Confirmation message to show on closing the lightbox with unsaved changes.', __FILE__);
-            $field->notes = __('Example:', __FILE__) . ' ' . $defaultCloseConfirmMessage;
-            $field->value = (isset($data[$name]) && !empty($data[$name])) ? $data[$name] : $defaultCloseConfirmMessage;
-            $field->columnWidth = 100;
-            $fieldset->add($field);
-        }
+        $field = $modules->get('InputfieldText');
+        $defaultCloseConfirmMessage = __('Are you sure you want to close the editor?', __FILE__);
+        $name = 'close_confirm_message';
+        $field->name = $name;
+        $field->label = __('Close confirm message', __FILE__);
+        $field->description = __('Confirmation message to show on closing the lightbox with unsaved changes.', __FILE__);
+        $field->notes = __('Example:', __FILE__) . ' ' . $defaultCloseConfirmMessage;
+        $field->value = (isset($data[$name]) && !empty($data[$name])) ? $data[$name] : $defaultCloseConfirmMessage;
+        $field->columnWidth = 100;
+        $fieldset->add($field);
 
         $fields->add($fieldset);
 
@@ -149,9 +133,7 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
 
         $this->configData = $this->wire('modules')->getModuleConfigData($this);
 
-        if (isset($this->configData['is_enabled']) && !$this->configData['is_enabled']) {
-            return false;
-        }
+        if (isset($this->configData['is_enabled']) && !$this->configData['is_enabled']) return false;
 
         $this->addHookAfter("ProcessPageView::execute", $this, 'addAssets');
     }
@@ -161,6 +143,7 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
         $this->addHook("Page::feel", $this, 'addMethod');
     }
 
+
     /**
      * Inject CSS/JS to page
      *
@@ -169,20 +152,20 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
      */
     public function addAssets(HookEvent $event) {
 
-        if (!$this->_isPageAllowed($this->page)) {
-            return false;
-        }
+        if (!$this->_isPageAllowed($this->page)) return false;
 
         $configData = $this->configData;
 
         $assetsFEEL = $this->wire('config')->urls->siteModules . __CLASS__ . '/' . __CLASS__;
         $assetsMagnific = $this->wire('config')->urls->modules . 'Jquery/JqueryMagnific/JqueryMagnific';
 
-        $cssFEEL = '<link rel="stylesheet" media="screen" href="' . $assetsFEEL . '.css' . '">';
-        $jsFEEL = '<script src="' . $assetsFEEL . '.js' . '"></script>';
+        $cssFEEL = '<link rel="stylesheet" media="screen" href="' . $assetsFEEL . '.css' . '">' . PHP_EOL;
+        $jsFEEL = '<script src="' . $assetsFEEL . '.js' . '"></script>' . PHP_EOL;
 
-        $cssMagnific = '<link rel="stylesheet" media="screen" href="' . $assetsMagnific . '.css' . '">';
-        $jsMagnific = '<script src="' . $assetsMagnific . '.js' . '"></script>';
+        $cssMagnific = '<link rel="stylesheet" media="screen" href="' . $assetsMagnific . '.css' . '">' . PHP_EOL;
+        $jsMagnific = '<script src="' . $assetsMagnific . '.js' . '"></script>' . PHP_EOL;
+
+        $cssStyleOverides = empty($configData['style_overrides']) ? '' : '<style>' . $configData['style_overrides'] . '</style>' . PHP_EOL;
 
         $jsOptions = '<script>var FEEL_defaults = ' . json_encode(
                 array(
@@ -193,9 +176,10 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
                     'fieldHighlightStyle' => isset($configData['field_highlight_style']) ? $configData['field_highlight_style'] : "",
                     'CloseConfirmMessage' => isset($configData['close_confirm_message']) ? $configData['close_confirm_message'] : ""
                 )
-            ) . '</script>';
+            ) . '</script>' . PHP_EOL;
 
-        $event->return = str_replace("</body>", $cssMagnific . $cssFEEL . $jsMagnific . $jsOptions . $jsFEEL . "</body>", $event->return);
+        $event->return = str_replace('</head>', $cssMagnific . $cssFEEL . $cssStyleOverides . $jsMagnific . $jsOptions . '</head>', $event->return);
+        $event->return = str_replace('</body>', $jsFEEL . '</body>', $event->return);
 
         return false;
     }
@@ -210,23 +194,19 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
     public function addMethod(HookEvent $event) {
 
         // method "feel" should still exist if module is disabled to avoid php error
-        if (!$this->configData['is_enabled']) {
-            return false;
-        }
+        if (!$this->configData['is_enabled']) return false;
 
         $page = $event->object;
 
-        if (!$this->_isPageAllowed($page)) {
-            return false;
-        }
+        if (!$this->_isPageAllowed($page)) return false;
 
         $settings = $event->arguments[0];
         $lang = $this->wire("user")->language ? '&language=' . $this->wire("user")->language->id : "";
 
         $text = isset($settings['text']) ? $settings['text'] : '#';
-        $class =  isset($settings['class']) ? ' class="' . "feel-" . preg_replace("/\s/", " feel-", $settings['class']) . '"' : '';
-        $targetField =  isset($settings['targetField']) ? ' data-target-field="Inputfield_' . $settings['targetField'] . '"' : '';
-        $targetTab =  isset($settings['targetTab']) ? ' data-target-tab="' . $settings['targetTab'] . '"' : '';
+        $class = isset($settings['class']) ? ' class="' . "feel-" . preg_replace("/\s/", " feel-", $settings['class']) . '"' : '';
+        $targetField = isset($settings['targetField']) ? ' data-target-field="Inputfield_' . $settings['targetField'] . '"' : '';
+        $targetTab = isset($settings['targetTab']) ? ' data-target-tab="' . $settings['targetTab'] . '"' : '';
         $overrides = (isset($settings['overrides']) && is_array($settings['overrides'])) ? " data-overrides='" . json_encode($settings['overrides']) . "'" : "";
 
         $editUrl = ' data-mfp-src="' . $page->editUrl . $lang . '&modal=1"';

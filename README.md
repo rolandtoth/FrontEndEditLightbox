@@ -200,6 +200,7 @@ Global options can be set in the module's settings page.
 - **Enable template edit**: allow page template editing on ctrl+click.
 - **Selectors to hide**: list of selectors to hide elements from admin (for example some tabs).
 - **Field highlight style**: CSS declarations to style target field (leave empty to disable).
+- **Style overrides**: CSS declarations to override styles
 - **Close confirm message**: text to show on lightbox close if there are unsaved changes.
 
 ###JavaScript
