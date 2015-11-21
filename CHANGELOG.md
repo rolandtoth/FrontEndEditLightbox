@@ -1,6 +1,20 @@
 #Changelog
 
-### 1.2.0 (2015-11-19)
+### 1.1.5 (2015-11-21)
+
+- fixed: assets weren't added if FEEL was used on a non-editable page with edit links referencing other pages
+- option to change default edit link text (request by adrianbj)
+- FrontEndEditLightbox.js and JqueryMagnific.js moved back to the bottom of `<body>` to ensure jQuery is loaded
+- usability: "Style override" option field placeholder was changed to field notes (suggested by Matjaž)
+- fixed fixedSaveButton typo (reported by Matjaž)
+- fixedSaveButton made overridable using CSS (class name `feel-fixed-save-button`)
+- fixed user js overrides
+- undefined notice fix (reported by adrianbj)
+- added icon (paper-plane)
+- lightbox max-width changed from 900px to 90%
+- use close confirm message only on Chrome - other browsers display the default confirm message before closing the lightbox properly
+
+### 1.1.2 (2015-11-19)
 
 - added "Style overrides" textarea for custom CSS (thanks to Matjaž)
 - moved JS/CSS to `<head>`

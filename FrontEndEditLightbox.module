@@ -19,10 +19,11 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
     public static function getModuleInfo() {
         return array(
             'title' => "Front-End Edit Lightbox",
-            'version' => "1.1.2",
+            'version' => "1.1.5",
             'summary' => "Edit pages on the frontend using lightboxed admin.",
             'author' => "Roland Toth",
             'href' => "https://github.com/rolandtoth/FrontEndEditLightbox",
+            'icon' => 'paper-plane',
             'autoload' => true,
             'singular' => true,
             'permanent' => false,
@@ -106,21 +107,32 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
         $field->name = $name;
         $field->label = __('Style overrides', __FILE__);
         $field->description = __('Custom CSS to override styles.', __FILE__);
-        $field->attr('placeholder', '.mfp-wrap.mfp-feel .mfp-content { max-width: 100%; max-height: 100%; }');
+        $field->notes = __('Example', __FILE__) . ': .mfp-wrap.mfp-feel .mfp-content { max-width: 100%; max-height: 100%; }';
         $field->value = isset($data[$name]) ? $data[$name] : '';
         $field->columnWidth = 100;
         $field->rows = 6;
         $fieldset->add($field);
 
         $field = $modules->get('InputfieldText');
+        $defaultText = '#';
+        $name = 'default_editlink_text';
+        $field->name = $name;
+        $field->label = __('Default edit link text', __FILE__);
+        $field->description = __('Default text to display on edit links. If left empty, "#" will be used.', __FILE__);
+        $field->notes = __('Use "text" => "" in your templates to force no text.', __FILE__);
+        $field->value = (isset($data[$name]) && !empty($data[$name])) ? $data[$name] : $defaultText;
+        $field->columnWidth = 50;
+        $fieldset->add($field);
+
+        $field = $modules->get('InputfieldText');
         $defaultCloseConfirmMessage = __('Are you sure you want to close the editor?', __FILE__);
         $name = 'close_confirm_message';
         $field->name = $name;
-        $field->label = __('Close confirm message', __FILE__);
+        $field->label = __('Close confirm message', __FILE__) . ' ' . __('(only for Chrome)', __FILE__);
         $field->description = __('Confirmation message to show on closing the lightbox with unsaved changes.', __FILE__);
         $field->notes = __('Example:', __FILE__) . ' ' . $defaultCloseConfirmMessage;
         $field->value = (isset($data[$name]) && !empty($data[$name])) ? $data[$name] : $defaultCloseConfirmMessage;
-        $field->columnWidth = 100;
+        $field->columnWidth = 50;
         $fieldset->add($field);
 
         $fields->add($fieldset);
@@ -129,18 +141,17 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
     }
 
 
-    public function init() {
-
+    public function ready() {
         $this->configData = $this->wire('modules')->getModuleConfigData($this);
 
         if (isset($this->configData['is_enabled']) && !$this->configData['is_enabled']) return false;
 
-        $this->addHookAfter("ProcessPageView::execute", $this, 'addAssets');
-    }
-
-
-    public function ready() {
         $this->addHook("Page::feel", $this, 'addMethod');
+
+        // add assets only if user is logged in and has edit-page permission
+        if (wire('user')->isLoggedin() && wire('user')->hasPermission('page-edit')) {
+            $this->addHookAfter("Page::render", $this, 'addAssets');
+        }
     }
 
 
@@ -151,8 +162,6 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
      * @return bool
      */
     public function addAssets(HookEvent $event) {
-
-        if (!$this->_isPageAllowed($this->page)) return false;
 
         $configData = $this->configData;
 
@@ -170,7 +179,7 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
         $jsOptions = '<script>var FEEL_defaults = ' . json_encode(
                 array(
                     'closeOnSave' => isset($configData['close_on_save']) ? (bool)$configData['close_on_save'] : true,
-                    'fixedSaveBbutton' => isset($configData['fixed_save_button']) ? (bool)$configData['fixed_save_button'] : true,
+                    'fixedSaveButton' => isset($configData['fixed_save_button']) ? (bool)$configData['fixed_save_button'] : true,
                     'enableTemplateEdit' => isset($configData['enable_template_edit']) ? (bool)$configData['enable_template_edit'] : true,
                     'selectorsToHide' => isset($configData['selectors_to_hide']) ? $configData['selectors_to_hide'] : "",
                     'fieldHighlightStyle' => isset($configData['field_highlight_style']) ? $configData['field_highlight_style'] : "",
@@ -178,8 +187,8 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
                 )
             ) . '</script>' . PHP_EOL;
 
-        $event->return = str_replace('</head>', $cssMagnific . $cssFEEL . $cssStyleOverides . $jsMagnific . $jsOptions . '</head>', $event->return);
-        $event->return = str_replace('</body>', $jsFEEL . '</body>', $event->return);
+        $event->return = str_replace('</head>', $cssMagnific . $cssFEEL . $cssStyleOverides . $jsOptions . '</head>', $event->return);
+        $event->return = str_replace('</body>', $jsMagnific . $jsFEEL . '</body>', $event->return);
 
         return false;
     }
@@ -193,17 +202,26 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
      */
     public function addMethod(HookEvent $event) {
 
+        $configData = $this->configData;
+
         // method "feel" should still exist if module is disabled to avoid php error
-        if (!$this->configData['is_enabled']) return false;
+        if (!$configData['is_enabled']) return false;
 
         $page = $event->object;
 
         if (!$this->_isPageAllowed($page)) return false;
 
-        $settings = $event->arguments[0];
+        $settings = !empty($event->arguments[0]) ? $event->arguments[0] : null;
         $lang = $this->wire("user")->language ? '&language=' . $this->wire("user")->language->id : "";
 
-        $text = isset($settings['text']) ? $settings['text'] : '#';
+        $text = '';
+        if (isset($configData['default_editlink_text'])) {
+            $text = $configData['default_editlink_text'];
+        }
+        if (isset($settings['text'])) {
+            $text = $settings['text'];
+        }
+
         $class = isset($settings['class']) ? ' class="' . "feel-" . preg_replace("/\s/", " feel-", $settings['class']) . '"' : '';
         $targetField = isset($settings['targetField']) ? ' data-target-field="Inputfield_' . $settings['targetField'] . '"' : '';
         $targetTab = isset($settings['targetTab']) ? ' data-target-tab="' . $settings['targetTab'] . '"' : '';

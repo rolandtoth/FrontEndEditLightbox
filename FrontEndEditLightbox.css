@@ -86,6 +86,18 @@ feel:hover {
     max-height: 90%;
 }
 
+.feel-fixed-save-button {
+    position: fixed;
+    top: 8px;
+    right: 6px;
+    outline: 8px solid #fff;
+    z-index: 999;
+}
+
+.mfp-wrap:not(.mfp-gallery) .mfp-content {
+    max-width: 90%;
+}
+
 @keyframes mfp-spinner {
     to {
         transform: rotate(360deg);
@@ -104,7 +116,7 @@ feel:hover {
 }
 
 .mfp-spinner:before {
-    content: "Loading�";
+    content: "";
     position: absolute;
     top: 50%;
     left: 50%;

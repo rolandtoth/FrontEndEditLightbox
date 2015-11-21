@@ -5,7 +5,7 @@
 
 $(function () {
 
-    var FEEL = $.extend({
+    var FEEL = $.extend(true, {}, {
         closeOnSave: true,  // auto close lightbox if no validation errors (true/false)
         fixedSaveButton: true,  // set Save button position fixed to the top-right corner
         enableTemplateEdit: true,  // allow page template editing on ctrl-click (true/false)
@@ -20,8 +20,7 @@ $(function () {
             preloader: false,
             overflowY: 'hidden'
         }
-    }, window.FEEL_defaults);
-
+    }, window.FEEL_defaults, window.FEEL);
 
     FEEL.selector = 'feel';
 
@@ -93,6 +92,7 @@ $(function () {
             // apply user popupOptions
             $.extend(true, $.magnificPopup.defaults, _FEEL.popupOptions);
 
+
             // set src to Template instead of Page if modifier key is pressed
             if (_FEEL.enableTemplateEdit && e.ctrlKey) {
                 iframeSrc = iframeSrc.replace(/page\/edit\/\?id=[0-9]+/i, 'setup/template/edit?id=' + $(this).attr('data-template-id'));
@@ -123,9 +123,11 @@ $(function () {
 
                             var unsavedMsg;
 
-                            // get any unsaved message (inputfields.js)
-                            if (document.querySelector('.mfp-feel .mfp-iframe').contentWindow.InputfieldFormBeforeUnloadEvent) {
-                                unsavedMsg = document.querySelector('.mfp-feel .mfp-iframe').contentWindow.InputfieldFormBeforeUnloadEvent({});
+                            // get any unsaved message (inputfields.js) - only for chrome
+                            if (navigator.userAgent.toLowerCase().indexOf('chrome') > -1) {
+                                if (document.querySelector('.mfp-feel .mfp-iframe').contentWindow.InputfieldFormBeforeUnloadEvent) {
+                                    unsavedMsg = document.querySelector('.mfp-feel .mfp-iframe').contentWindow.InputfieldFormBeforeUnloadEvent({});
+                                }
                             }
 
                             if (false === callCallback('onIframeClose', {
@@ -163,13 +165,7 @@ $(function () {
                             var editForm = $(adminIframe).contents().find('form#' + (adminMode == 'page' ? 'ProcessPageEdit' : 'ProcessTemplateEdit'));
 
                             if (_FEEL.fixedSaveButton) {
-                                editForm.find("#submit_save, #Inputfield_submit").css({
-                                    'position': "fixed",
-                                    'top': "8px",
-                                    'right': "6px",
-                                    'z-index': "999",
-                                    'outline': '8px solid #fff'
-                                }).appendTo(editForm);
+                                editForm.find("#submit_save, #Inputfield_submit").addClass('feel-fixed-save-button').appendTo(editForm);
                             }
 
                             if (_FEEL.selectorsToHide) {

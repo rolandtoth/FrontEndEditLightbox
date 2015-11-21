@@ -15,7 +15,6 @@ Requires jQuery and uses [Magnific Popup](http://dimsemenov.com/plugins/magnific
 - load language tabs of the language currently browsed
 - jump directly to an admin field or tab
 - hide elements from the admin using jQuery selectors
-- edit page template on ctrl+click (optional)
 - confirm lightbox close if there are unsaved changes
 - configurable lightbox properties
 - edit link positioning helper classes
@@ -111,7 +110,7 @@ By default edit links appear inline and with black font color. You can use the f
 *Example: set edit link to appear as a button in the bottom-left corner of the browser window, with black background and white font color:*
 
 ```php
-echo $page->feel("class" => "fixed bottom left button invert");
+echo $page->feel(array("class" => "fixed bottom left button invert"));
 ```
 
 Please note that fixed positioned edit links will overlap if placed to the same position, eg. adding two edit links with classes "fixed top left".
@@ -196,20 +195,22 @@ Global options can be set in the module's settings page.
 
 - **Enable module**: global toggle to enable/disable module.
 - **Close on save**: auto close lightbox if no validation errors. Disabled in template edit mode (defaults to false).
-- **Fixed save button**: the Save button is at the bottom in the lightboxed admin. Setting this to true will set its position to fixed so it will be always visible in the top-right corner.
+- **Fixed save button**: the Save button is at the bottom in the lightboxed admin. Setting this to true will set its position to fixed so it will be always visible in the top-right corner. You can modify its style using the CSS selector `.feel-fixed-save-button`.
 - **Enable template edit**: allow page template editing on ctrl+click.
 - **Selectors to hide**: list of selectors to hide elements from admin (for example some tabs).
 - **Field highlight style**: CSS declarations to style target field (leave empty to disable).
-- **Style overrides**: CSS declarations to override styles
+- **Style overrides**: CSS declarations to override styles. Note that these styles may affect everything on the page if not used with caution.
+- **Default edit link text**: text to display on edit links, defaults to "#". Override in templates using `"text" => ""` to force no text.
 - **Close confirm message**: text to show on lightbox close if there are unsaved changes.
 
-###JavaScript
+### JavaScript
 
-####Override global options using JavaScript
+#### Override global options using JavaScript
 
 Besides global module options, FEEL options can be also set using JavaScript. Option names will become camelCase.
 
 To set custom global FEEL options, define a FEEL object to override default values.
+This object needs to be in the global namespace, so put this outside of document.ready()
 
 *Example: disable fixed save button and disable the ESC key on the lightbox:*
 
