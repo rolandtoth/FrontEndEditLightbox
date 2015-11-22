@@ -1,5 +1,9 @@
 #Changelog
 
+### 1.1.6 (2015-11-22)
+
+- fix: unchecking setting "Enable module" in module options causing PHP error
+
 ### 1.1.5 (2015-11-21)
 
 - fixed: assets weren't added if FEEL was used on a non-editable page with edit links referencing other pages

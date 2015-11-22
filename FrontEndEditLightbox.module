@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Front-End Edit Lightbox (1.1.2)
+ * Front-End Edit Lightbox (FEEL) for ProcessWire
  * Edit pages on the frontend using lightboxed admin.
  *
  * @author Roland Toth <contact@rolandtoth.hu>
@@ -19,7 +19,7 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
     public static function getModuleInfo() {
         return array(
             'title' => "Front-End Edit Lightbox",
-            'version' => "1.1.5",
+            'version' => "1.1.6",
             'summary' => "Edit pages on the frontend using lightboxed admin.",
             'author' => "Roland Toth",
             'href' => "https://github.com/rolandtoth/FrontEndEditLightbox",
@@ -144,9 +144,9 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
     public function ready() {
         $this->configData = $this->wire('modules')->getModuleConfigData($this);
 
-        if (isset($this->configData['is_enabled']) && !$this->configData['is_enabled']) return false;
-
         $this->addHook("Page::feel", $this, 'addMethod');
+
+        if (isset($this->configData['is_enabled']) && !$this->configData['is_enabled']) return false;
 
         // add assets only if user is logged in and has edit-page permission
         if (wire('user')->isLoggedin() && wire('user')->hasPermission('page-edit')) {
