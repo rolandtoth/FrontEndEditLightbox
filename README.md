@@ -7,7 +7,7 @@ Requires jQuery and uses [Magnific Popup](http://dimsemenov.com/plugins/magnific
 
 ## Features
 
-- add edit links to templates using $page->feel() where $page can be any Page object
+- add edit links to templates using `$page->feel()` where $page can be any Page object
 - open admin in a lightbox
 - reload page only if page was saved
 - auto-close lightbox on save if no errors (optional)
@@ -66,12 +66,12 @@ Note: on the module settings page there is an "Enable module" toggle. Use this t
 
 ## Parameters
 
-You can control how should edit links appear and behave passing an array parameters to the `feel()` method:
+You can control how edit links should appear and behave passing an array of parameters to the `feel()` method:
 
 ```php
 <?php
 echo $page->feel(array(
-    "text" => "Edit page",
+    "text" => "Edit images",
     "class" => "fixed left",
     "targetField" => "images"
     )
@@ -79,7 +79,15 @@ echo $page->feel(array(
 ?>
 ```
 
-Using the code above will set "Edit page" for link text and classes "fixed" and "left". It also sets target field to "images", which will scroll into view and gets highlighted when the admin loads.
+Short array syntax (PHP 5.4 and up):
+
+```php
+<?php
+echo $page->feel(["text" => "Edit images", "class" => "fixed left", "targetField" => "images"]);
+?>
+```
+
+Using the code above will set "Edit images" for link text and classes "fixed" and "left". It also sets target field to "images", which will scroll into view and gets highlighted when the admin loads.
 
 **List of available parameters:**
 
@@ -271,6 +279,10 @@ Note that `Close on save` option has no effect in this mode, the admin lightbox 
 ## Multilanguage awareness
 
 The helper function takes the current language into account. For example, when browsing the German section of a multilanguage site the German tabs will be opened when the admin loads.
+
+## Misc
+
+To view the page without the edit links use hotkey ctrl+shift to toggle them on/off.
 
 
 ## Troubleshooting

@@ -1,5 +1,13 @@
 #Changelog
 
+### 1.1.8 (2015-12-01)
+- do not add Magnific Popup assets to admin (suggested by Matjaž)
+- fixed missing default values on module install
+- fixed default editlink text override issue
+- fixed: do not try to open Template editor if not SuperUser
+- added ctrl+shift hotkey to toggle editlink display
+- sanitize module settings inputs
+
 ### 1.1.6 (2015-11-22)
 
 - fix: unchecking setting "Enable module" in module options causing PHP error

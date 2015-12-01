@@ -135,6 +135,10 @@ feel:hover {
     -webkit-animation: mfp-spinner .6s linear infinite;
 }
 
+body.hide-feel feel {
+    display: none !important;
+}
+
 @media print {
     feel {
         display: none;

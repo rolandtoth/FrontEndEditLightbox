@@ -8,7 +8,7 @@ $(function () {
     var FEEL = $.extend(true, {}, {
         closeOnSave: true,  // auto close lightbox if no validation errors (true/false)
         fixedSaveButton: true,  // set Save button position fixed to the top-right corner
-        enableTemplateEdit: true,  // allow page template editing on ctrl-click (true/false)
+        enableTemplateEdit: false,  // allow page template editing on ctrl-click (true/false)
         selectorsToHide: '#_ProcessPageEditChildren, #_ProcessPageEditDelete, #_ProcessPageEditSettings, #_WireTabDelete',  // list of selectors to hide elements from admin
         fieldHighlightStyle: 'outline: 2px solid #89ADE2; outline-offset: -1px; z-index: 200; position: relative;',  // CSS declarations to style target field (leave empty to disable)
         closeConfirmMessage: 'Are you sure you want to close the editor?', // text to show on lightbox close if there are unsaved changes
@@ -75,6 +75,15 @@ $(function () {
         // extend Magnific Popup with user settings
         $.extend(true, $.magnificPopup.defaults, FEEL.popupOptions);
 
+
+        // toggle editlink display hotkey
+        $('body').on('keydown', function (e) {
+            if (e.ctrlKey && e.shiftKey) {
+                $('body').toggleClass('hide-feel');
+            }
+        });
+
+
         // initialize and open lightbox
         $(FEEL.selector).on('click', function (e) {
 
@@ -82,6 +91,7 @@ $(function () {
 
             var iframeSrc = $(this).attr('data-mfp-src'),
                 targetField = $(this).attr('data-target-field'),
+                templateId = $(this).attr('data-template-id'),
                 overrides = $(this).attr('data-overrides'),
                 _FEEL = {},
                 adminMode = 'page';
@@ -94,7 +104,7 @@ $(function () {
 
 
             // set src to Template instead of Page if modifier key is pressed
-            if (_FEEL.enableTemplateEdit && e.ctrlKey) {
+            if (templateId && _FEEL.enableTemplateEdit && e.ctrlKey) {
                 iframeSrc = iframeSrc.replace(/page\/edit\/\?id=[0-9]+/i, 'setup/template/edit?id=' + $(this).attr('data-template-id'));
                 adminMode = 'template';
             }
