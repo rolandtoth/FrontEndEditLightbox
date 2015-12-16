@@ -88,14 +88,17 @@ feel:hover {
 
 .feel-fixed-save-button {
     position: fixed;
-    top: 8px;
-    right: 6px;
-    outline: 8px solid #fff;
+    top: 5px;
+    right: 15px;
     z-index: 999;
 }
 
 .mfp-wrap:not(.mfp-gallery) .mfp-content {
     max-width: 90%;
+}
+
+.mfp-close {
+    font-size: 40px;
 }
 
 @keyframes mfp-spinner {

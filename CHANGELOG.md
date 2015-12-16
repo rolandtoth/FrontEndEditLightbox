@@ -1,6 +1,14 @@
 #Changelog
 
-### 1.1.8 (2015-12-01)
+### 1.2.0 (2015-12-16)
+- fixed: do not add editlink markup if module is disabled (reported by Matjaž)
+- new option: excluded templates
+- use markdown for examples in field notes (module settings page)
+- make advanced fields collapsed if empty (module settings page)
+- some JS/CSS files skipped if admin
+- a few CSS changes (suggested by Matjaž)
+
+### 1.1.9 (2015-12-01)
 - do not add Magnific Popup assets to admin (suggested by Matjaž)
 - fixed missing default values on module install
 - fixed default editlink text override issue

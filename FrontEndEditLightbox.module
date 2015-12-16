@@ -24,7 +24,7 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
 	public static function getModuleInfo() {
 		return array(
 			'title' => 'Front-End Edit Lightbox',
-			'version' => '1.1.9',
+			'version' => '1.2.0',
 			'summary' => 'Edit pages on the frontend using lightboxed admin.',
 			'author' => 'Roland Toth',
 			'href' => 'https://github.com/rolandtoth/FrontEndEditLightbox',
@@ -48,7 +48,7 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
 		'fixedSaveButton' => true,
 		'enableTemplateEdit' => false,
 		'selectorsToHide' => '#_ProcessPageEditChildren, #_ProcessPageEditDelete, #_ProcessPageEditSettings, #_WireTabDelete',
-		'fieldHighlightStyle' => 'outline: 2px solid #89ADE2; outline-offset: -1px; z-index: 200; position: relative;',
+		'fieldHighlightStyle' => 'outline: 2px solid #89ADE2; outline-offset: -2px; z-index: 200; position: relative;',
 		'styleOverrides' => '',
 		'closeConfirmMessage' => 'Are you sure you want to close the editor?',
 		'overrides' => '',
@@ -68,15 +68,50 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
 		$field->name = $name;
 		$defaultValue = self::$defaults[$name];
 		$field->label = __('Enable module', __FILE__);
-		$field->notes = __('If disabled, no edit links will appear on the site.', __FILE__);
+		$field->notes = __('Checkbox to toggle module on/off. Uncheck to temporarily disable edit links instead of manually removing them from templates.', __FILE__);
 		$field->value = (isset($data[$name])) ? $data[$name] : (int)$defaultValue;
 		$field->checked = ($field->value === 1) ? 'checked' : '';
-		$field->columnWidth = 33;
+		$field->columnWidth = 100;
 		$fields->add($field);
 
 		$fieldset = new InputfieldFieldset();
 		$fieldset->label = __('Options', __FILE__);
 		$fieldset->showIf = 'isEnabled=1';
+
+		$field = $modules->get('InputfieldText');
+		$name = 'text';
+		$defaultValue = self::$defaults[$name];
+		$field->name = $name;
+		$field->label = __('Default edit link text', __FILE__);
+		$field->description = __('Text to display on edit links. Defaults to "#" if empty.', __FILE__);
+		$field->notes = __('Use `"text" => ""` in your templates to force no text.', __FILE__);
+		$field->value = (isset($data[$name]) && !empty($data[$name])) ? wire('sanitizer')->textarea($data[$name]) : $defaultValue;
+		$field->columnWidth = 34;
+		$fieldset->add($field);
+
+		$field = $modules->get('InputfieldAsmSelect');
+		$name = 'excluded_templates';
+		$field->name = $name;
+		$field->label = __('Excluded templates', __FILE__);
+		$field->description = __('Templates where module should be disabled.', __FILE__);
+		$field->notes = __('Note: SuperUsers will see all edit links.', __FILE__);
+		$field->columnWidth = 33;
+		foreach($this->wire('templates') as $t) {
+			$field->addOption($t->name, self::getFormattedOptionName($t));
+		}
+		$field->value = isset($data[$name]) ? $data[$name] : '';
+		$fieldset->add($field);
+
+		$field = $modules->get('InputfieldText');
+		$name = 'closeConfirmMessage';
+		$defaultValue = self::$defaults[$name];
+		$field->name = $name;
+		$field->label = __('Close confirm message', __FILE__) . ' ' . __('(Chrome only)', __FILE__);
+		$field->description = __('Message to show on lightbox close with unsaved changes.', __FILE__);
+		$field->notes = ' `' . $defaultValue . '`';
+		$field->value = (isset($data[$name]) && !empty($data[$name])) ? $data[$name] : $defaultValue;
+		$field->columnWidth = 33;
+		$fieldset->add($field);
 
 		$field = $modules->get('InputfieldCheckbox');
 		$name = 'closeOnSave';
@@ -105,7 +140,7 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
 		$defaultValue = self::$defaults[$name];
 		$field->name = $name;
 		$field->label = __('Enable template edit mode', __FILE__);
-		$field->notes = __('Allow editing page template ctrl+clicking on the edit link.', __FILE__);
+		$field->notes = __('Edit page template using ctrl+click on edit links.', __FILE__);
 		$field->value = isset($data[$name]) ? $data[$name] : (int)$defaultValue;
 		$field->checked = ($field->value === 1) ? 'checked' : '';
 		$field->columnWidth = 33;
@@ -117,7 +152,7 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
 		$field->name = $name;
 		$field->label = __('Selectors to hide', __FILE__);
 		$field->description = __('Comma-separated list of CSS selectors to hide elements from the admin.', __FILE__);
-		$field->notes = __('Recommended:', __FILE__) . ' ' . $defaultValue;
+		$field->notes = __('Recommended:', __FILE__) . ' `' . $defaultValue . '`';
 		$field->value = (isset($data[$name]) && !empty($data[$name])) ? $data[$name] : $defaultValue;
 		$field->columnWidth = 100;
 		$fieldset->add($field);
@@ -128,9 +163,10 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
 		$field->name = $name;
 		$field->label = __('Field highlight style', __FILE__);
 		$field->description = __('CSS declarations to style target field. Leave empty to disable.', __FILE__);
-		$field->notes = __('Default:', __FILE__) . ' ' . $defaultValue;
+		$field->notes = ' `' . $defaultValue . '`';
 		$field->value = !is_null($data[$name]) ? $data[$name] : $defaultValue;
 		$field->columnWidth = 100;
+		$field->collapsed = 2;
 		$fieldset->add($field);
 
 		$field = $modules->get('InputfieldTextarea');
@@ -139,32 +175,11 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
 		$field->name = $name;
 		$field->label = __('Style overrides', __FILE__);
 		$field->description = __('Custom CSS to override styles.', __FILE__);
-		$field->notes = __('Example', __FILE__) . ': .mfp-wrap.mfp-feel .mfp-content { max-width: 100%; max-height: 100%; }';
+		$field->notes = '`: .mfp-wrap.mfp-feel .mfp-content { max-width: 100%; max-height: 100%; }`';
 		$field->value = isset($data[$name]) ? $data[$name] : $defaultValue;
 		$field->columnWidth = 100;
+		$field->collapsed = 2;
 		$field->rows = 6;
-		$fieldset->add($field);
-
-		$field = $modules->get('InputfieldText');
-		$name = 'text';
-		$defaultValue = self::$defaults[$name];
-		$field->name = $name;
-		$field->label = __('Default edit link text', __FILE__);
-		$field->description = __('Default text to display on edit links. If left empty, "#" will be used.', __FILE__);
-		$field->notes = __('Use "text" => "" in your templates to force no text.', __FILE__);
-		$field->value = (isset($data[$name]) && !empty($data[$name])) ? wire('sanitizer')->textarea($data[$name]) : $defaultValue;
-		$field->columnWidth = 50;
-		$fieldset->add($field);
-
-		$field = $modules->get('InputfieldText');
-		$name = 'closeConfirmMessage';
-		$defaultValue = self::$defaults[$name];
-		$field->name = $name;
-		$field->label = __('Close confirm message', __FILE__) . ' ' . __('(only for Chrome)', __FILE__);
-		$field->description = __('Confirmation message to show on closing the lightbox with unsaved changes.', __FILE__);
-		$field->notes = __('Example:', __FILE__) . ' ' . $defaultValue;
-		$field->value = (isset($data[$name]) && !empty($data[$name])) ? $data[$name] : $defaultValue;
-		$field->columnWidth = 50;
 		$fieldset->add($field);
 
 		$fields->add($fieldset);
@@ -176,11 +191,13 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
 	 * ready() hook
 	 */
 	public function ready() {
+
 		$this->configData = $this->wire('modules')->getModuleConfigData($this);
 
+		// method needs to be present even if module is disabled to prevent PHP error
 		$this->addHook('Page::feel', $this, 'addMethod');
 
-		if(isset($this->configData['isEnabled']) && !$this->configData['isEnabled']) {
+		if(isset($this->configData['isEnabled']) && $this->configData['isEnabled'] !== 1) {
 			return false;
 		}
 
@@ -199,34 +216,31 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
 	public function addAssets(HookEvent $event) {
 
 		$page = $event->object;
-
 		$configData = $this->configData;
 
 		$assetsFEEL = $this->wire('config')->urls->siteModules . __CLASS__ . '/' . __CLASS__;
-
 		$cssFEEL = '<link rel="stylesheet" media="screen" href="' . $assetsFEEL . '.css' . '">' . PHP_EOL;
-		$jsFEEL = '<script src="' . $assetsFEEL . '.js' . '"></script>' . PHP_EOL;
+		$cssStyleOverides = empty($configData['styleOverrides']) ? '' : '<style>' . $configData['styleOverrides'] . '</style>' . PHP_EOL;
 
-
-		// do not add Magnific assets to admin
+		// do not add all assets to admin
 		if($page->template != 'admin') {
+
 			$assetsMagnific = $this->wire('config')->urls->modules . 'Jquery/JqueryMagnific/JqueryMagnific';
 			$cssMagnific = '<link rel="stylesheet" media="screen" href="' . $assetsMagnific . '.css' . '">' . PHP_EOL;
 			$jsMagnific = '<script src="' . $assetsMagnific . '.js' . '"></script>' . PHP_EOL;
+			$jsFEEL = '<script src="' . $assetsFEEL . '.js' . '"></script>' . PHP_EOL;
+			$jsDefaults = array();
+			foreach(array('closeOnSave', 'fixedSaveButton', 'enableTemplateEdit', 'selectorsToHide', 'fieldHighlightStyle', 'closeConfirmMessage') as $key) {
+				$jsDefaults[$key] = isset($configData[$key]) ? wire('sanitizer')->textarea($configData[$key]) : self::$defaults[$key];
+			}
+			$jsDefaults = '<script>var FEEL_defaults = ' . json_encode($jsDefaults) . '</script>' . PHP_EOL;
+
 		} else {
 			$cssMagnific = '';
 			$jsMagnific = '';
+			$jsFEEL = '';
+			$jsDefaults = '';
 		}
-
-		$cssStyleOverides = empty($configData['styleOverrides']) ? '' : '<style>' . $configData['styleOverrides'] . '</style>' . PHP_EOL;
-
-		$jsDefaults = array();
-
-		foreach(array('closeOnSave', 'fixedSaveButton', 'enableTemplateEdit', 'selectorsToHide', 'fieldHighlightStyle', 'closeConfirmMessage') as $key) {
-			$jsDefaults[$key] = isset($configData[$key]) ? wire('sanitizer')->textarea($configData[$key]) : self::$defaults[$key];
-		}
-
-		$jsDefaults = '<script>var FEEL_defaults = ' . json_encode($jsDefaults) . '</script>' . PHP_EOL;
 
 		$event->return = str_replace('</head>', $cssMagnific . $cssFEEL . $cssStyleOverides . $jsDefaults . '</head>', $event->return);
 		$event->return = str_replace('</body>', $jsMagnific . $jsFEEL . '</body>', $event->return);
@@ -244,12 +258,16 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
 
 		$configData = $this->configData;
 
-		// method "feel" should still exist if module is disabled to avoid php error
-		if(isset($configData['isEnabled']) && $configData['isEnabled'] === 0) {
+		if(isset($configData['isEnabled']) && $configData['isEnabled'] !== 1) {
 			return false;
 		}
 
 		$page = $event->object;
+
+		// return if template is disabled (with the exception of SuperUsers)
+		if(!wire('user')->isSuperUser() && isset($configData['excluded_templates']) && !$this->_isTemplateAllowed($page->template->name, $configData['excluded_templates'])) {
+			return false;
+		}
 
 		if(!$this->_isPageAllowed($page)) {
 			return false;
@@ -291,6 +309,29 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
 	 */
 	private function _isPageAllowed($page) {
 		return ($page instanceof Page && $page->editable() && $page->template != 'admin' && $this->wire('user')->isLoggedin());
+	}
+
+
+	/**
+	 * Check if page template is not disabled
+	 *
+	 * @param $template_name
+	 * @param $excluded_templates
+	 * @return bool
+	 */
+	private function _isTemplateAllowed($template_name, $excluded_templates) {
+		return !in_array($template_name, $excluded_templates);
+	}
+
+
+	/**
+	 * Format value as "Value (name)" based on value/name availability
+	 *
+	 * @param $obj
+	 * @return string
+	 */
+	public function getFormattedOptionName($obj) {
+		return !empty($obj->label) ? $obj->label . ' (' . $obj->name . ')' : $obj->name;
 	}
 
 }
