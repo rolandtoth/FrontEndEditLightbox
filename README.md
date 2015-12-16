@@ -204,6 +204,7 @@ Global options can be set in the module's settings page.
 - **Enable module**: global toggle to enable/disable module.
 - **Close on save**: auto close lightbox if no validation errors. Disabled in template edit mode (defaults to false).
 - **Fixed save button**: the Save button is at the bottom in the lightboxed admin. Setting this to true will set its position to fixed so it will be always visible in the top-right corner. You can modify its style using the CSS selector `.feel-fixed-save-button`.
+- **Excluded templates**: list of templates where module should be disabled. SuperUsers will see all edit links regardless of this setting.
 - **Enable template edit**: allow page template editing on ctrl+click.
 - **Selectors to hide**: list of selectors to hide elements from admin (for example some tabs).
 - **Field highlight style**: CSS declarations to style target field (leave empty to disable).
