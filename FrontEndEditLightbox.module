@@ -1,337 +1,342 @@
 <?php
 
-/**
- * Front-End Edit Lightbox (FEEL) for ProcessWire
- * Edit pages on the frontend using lightboxed admin.
- *
- * @author Roland Toth <contact@rolandtoth.hu>
- * @license The MIT License (MIT)
- */
+    /**
+     * Front-End Edit Lightbox (FEEL) for ProcessWire
+     * Edit pages on the frontend using lightboxed admin.
+     *
+     * @author  Roland Toth <contact@rolandtoth.hu>
+     * @license The MIT License (MIT)
+     */
 
-/**
- * Class FrontEndEditLightbox
- */
-class FrontEndEditLightbox extends WireData implements Module, ConfigurableModule {
+    /**
+     * Class FrontEndEditLightbox
+     */
+    class FrontEndEditLightbox extends WireData implements Module, ConfigurableModule {
 
-	/**
-	 * Module configuraton values
-	 */
-	private $configData;
+        /**
+         * Module configuraton values
+         */
+        private $configData;
 
-	/**
-	 * Module info
-	 */
-	public static function getModuleInfo() {
-		return array(
-			'title' => 'Front-End Edit Lightbox',
-			'version' => '1.2.0',
-			'summary' => 'Edit pages on the frontend using lightboxed admin.',
-			'author' => 'Roland Toth',
-			'href' => 'https://github.com/rolandtoth/FrontEndEditLightbox',
-			'icon' => 'paper-plane',
-			'autoload' => true,
-			'singular' => true,
-			'permanent' => false,
-		);
-	}
+        /**
+         * Module info
+         */
+        public static function getModuleInfo() {
+            return array(
+                'title'     => 'Front-End Edit Lightbox',
+                'version'   => '1.2.1',
+                'summary'   => 'Edit pages on the frontend using lightboxed admin.',
+                'author'    => 'Roland Toth',
+                'href'      => 'https://github.com/rolandtoth/FrontEndEditLightbox',
+                'icon'      => 'paper-plane',
+                'autoload'  => true,
+                'singular'  => true,
+                'permanent' => false,
+            );
+        }
 
-	/**
-	 * Default values
-	 */
-	protected static $defaults = array(
-		'isEnabled' => true,
-		'text' => '#',
-		'class' => 'feel feel-inline',
-		'targetField' => '',
-		'targetTab' => '',
-		'closeOnSave' => true,
-		'fixedSaveButton' => true,
-		'enableTemplateEdit' => false,
-		'selectorsToHide' => '#_ProcessPageEditChildren, #_ProcessPageEditDelete, #_ProcessPageEditSettings, #_WireTabDelete',
-		'fieldHighlightStyle' => 'outline: 2px solid #89ADE2; outline-offset: -2px; z-index: 200; position: relative;',
-		'styleOverrides' => '',
-		'closeConfirmMessage' => 'Are you sure you want to close the editor?',
-		'overrides' => '',
-	);
+        /**
+         * Default values
+         */
+        protected static $defaults = array(
+            'isEnabled'           => true,
+            'text'                => '#',
+            'class'               => 'feel feel-inline',
+            'targetField'         => '',
+            'targetTab'           => '',
+            'closeOnSave'         => true,
+            'fixedSaveButton'     => true,
+            'enableTemplateEdit'  => false,
+            'selectorsToHide'     => '#_ProcessPageEditChildren, #_ProcessPageEditDelete, #_ProcessPageEditSettings, #_WireTabDelete',
+            'fieldHighlightStyle' => 'outline: 2px solid #89ADE2; outline-offset: -2px; z-index: 200; position: relative;',
+            'styleOverrides'      => '',
+            'closeConfirmMessage' => 'Are you sure you want to close the editor?',
+            'overrides'           => '',
+        );
 
-	/**
-	 * Module fields
-	 */
-	public function getModuleConfigInputfields(array $data) {
+        /**
+         * Module fields
+         */
+        public function getModuleConfigInputfields(array $data) {
 
-		$modules = wire('modules');
+            $modules = wire('modules');
 
-		$fields = new InputfieldWrapper();
+            $fields = new InputfieldWrapper();
 
-		$field = $modules->get('InputfieldCheckbox');
-		$name = 'isEnabled';
-		$field->name = $name;
-		$defaultValue = self::$defaults[$name];
-		$field->label = __('Enable module', __FILE__);
-		$field->notes = __('Checkbox to toggle module on/off. Uncheck to temporarily disable edit links instead of manually removing them from templates.', __FILE__);
-		$field->value = (isset($data[$name])) ? $data[$name] : (int)$defaultValue;
-		$field->checked = ($field->value === 1) ? 'checked' : '';
-		$field->columnWidth = 100;
-		$fields->add($field);
+            $field = $modules->get('InputfieldCheckbox');
+            $name = 'isEnabled';
+            $field->name = $name;
+            $defaultValue = self::$defaults[$name];
+            $field->label = __('Enable module', __FILE__);
+            $field->notes = __('Checkbox to toggle module on/off. Uncheck to temporarily disable edit links instead of manually removing them from templates.', __FILE__);
+            $field->value = (isset($data[$name])) ? $data[$name] : (int)$defaultValue;
+            $field->checked = ($field->value === 1) ? 'checked' : '';
+            $field->columnWidth = 100;
+            $fields->add($field);
 
-		$fieldset = new InputfieldFieldset();
-		$fieldset->label = __('Options', __FILE__);
-		$fieldset->showIf = 'isEnabled=1';
+            $fieldset = new InputfieldFieldset();
+            $fieldset->label = __('Options', __FILE__);
+            $fieldset->showIf = 'isEnabled=1';
 
-		$field = $modules->get('InputfieldText');
-		$name = 'text';
-		$defaultValue = self::$defaults[$name];
-		$field->name = $name;
-		$field->label = __('Default edit link text', __FILE__);
-		$field->description = __('Text to display on edit links. Defaults to "#" if empty.', __FILE__);
-		$field->notes = __('Use `"text" => ""` in your templates to force no text.', __FILE__);
-		$field->value = (isset($data[$name]) && !empty($data[$name])) ? wire('sanitizer')->textarea($data[$name]) : $defaultValue;
-		$field->columnWidth = 34;
-		$fieldset->add($field);
+            $field = $modules->get('InputfieldText');
+            $name = 'text';
+            $defaultValue = self::$defaults[$name];
+            $field->name = $name;
+            $field->label = __('Default edit link text', __FILE__);
+            $field->description = __('Text to display on edit links. Defaults to "#" if empty.', __FILE__);
+            $field->notes = __('Use `"text" => ""` in your templates to force no text.', __FILE__);
+            $field->value = (isset($data[$name]) && !empty($data[$name])) ? wire('sanitizer')->textarea($data[$name]) : $defaultValue;
+            $field->columnWidth = 34;
+            $fieldset->add($field);
 
-		$field = $modules->get('InputfieldAsmSelect');
-		$name = 'excluded_templates';
-		$field->name = $name;
-		$field->label = __('Excluded templates', __FILE__);
-		$field->description = __('Templates where module should be disabled.', __FILE__);
-		$field->notes = __('Note: SuperUsers will see all edit links.', __FILE__);
-		$field->columnWidth = 33;
-		foreach($this->wire('templates') as $t) {
-			$field->addOption($t->name, self::getFormattedOptionName($t));
-		}
-		$field->value = isset($data[$name]) ? $data[$name] : '';
-		$fieldset->add($field);
+            $field = $modules->get('InputfieldAsmSelect');
+            $name = 'excluded_templates';
+            $field->name = $name;
+            $field->label = __('Excluded templates', __FILE__);
+            $field->description = __('Templates where module should be disabled.', __FILE__);
+            $field->notes = __('Note: SuperUsers will see all edit links.', __FILE__);
+            $field->columnWidth = 33;
+            foreach ($this->wire('templates') as $t) {
+                $field->addOption($t->name, self::getFormattedOptionName($t));
+            }
+            $field->value = isset($data[$name]) ? $data[$name] : '';
+            $fieldset->add($field);
 
-		$field = $modules->get('InputfieldText');
-		$name = 'closeConfirmMessage';
-		$defaultValue = self::$defaults[$name];
-		$field->name = $name;
-		$field->label = __('Close confirm message', __FILE__) . ' ' . __('(Chrome only)', __FILE__);
-		$field->description = __('Message to show on lightbox close with unsaved changes.', __FILE__);
-		$field->notes = ' `' . $defaultValue . '`';
-		$field->value = (isset($data[$name]) && !empty($data[$name])) ? $data[$name] : $defaultValue;
-		$field->columnWidth = 33;
-		$fieldset->add($field);
+            $field = $modules->get('InputfieldText');
+            $name = 'closeConfirmMessage';
+            $defaultValue = self::$defaults[$name];
+            $field->name = $name;
+            $field->label = __('Close confirm message', __FILE__) . ' ' . __('(Chrome only)', __FILE__);
+            $field->description = __('Message to show on lightbox close with unsaved changes.', __FILE__);
+            $field->notes = ' `' . $defaultValue . '`';
+            $field->value = (isset($data[$name]) && !empty($data[$name])) ? $data[$name] : $defaultValue;
+            $field->columnWidth = 33;
+            $fieldset->add($field);
 
-		$field = $modules->get('InputfieldCheckbox');
-		$name = 'closeOnSave';
-		$defaultValue = self::$defaults[$name];
-		$field->name = $name;
-		$field->label = __('Close on save', __FILE__);
-		$field->notes = __('Auto close lightbox on save if no validation error occurs.', __FILE__);
-		$field->value = isset($data[$name]) ? $data[$name] : (int)$defaultValue;
-		$field->checked = ($field->value === 1) ? 'checked' : '';
-		$field->columnWidth = 34;
-		$fieldset->add($field);
+            $field = $modules->get('InputfieldCheckbox');
+            $name = 'closeOnSave';
+            $defaultValue = self::$defaults[$name];
+            $field->name = $name;
+            $field->label = __('Close on save', __FILE__);
+            $field->notes = __('Auto close lightbox on save if no validation error occurs.', __FILE__);
+            $field->value = isset($data[$name]) ? $data[$name] : (int)$defaultValue;
+            $field->checked = ($field->value === 1) ? 'checked' : '';
+            $field->columnWidth = 34;
+            $fieldset->add($field);
 
-		$field = $modules->get('InputfieldCheckbox');
-		$name = 'fixedSaveButton';
-		$defaultValue = self::$defaults[$name];
-		$field->name = $name;
-		$field->label = __('Fixed save button', __FILE__);
-		$field->notes = __('Stick the save button to the top-right corner for easier access.', __FILE__);
-		$field->value = isset($data[$name]) ? $data[$name] : (int)$defaultValue;
-		$field->checked = ($field->value === 1) ? 'checked' : '';
-		$field->columnWidth = 33;
-		$fieldset->add($field);
+            $field = $modules->get('InputfieldCheckbox');
+            $name = 'fixedSaveButton';
+            $defaultValue = self::$defaults[$name];
+            $field->name = $name;
+            $field->label = __('Fixed save button', __FILE__);
+            $field->notes = __('Stick the save button to the top-right corner for easier access.', __FILE__);
+            $field->value = isset($data[$name]) ? $data[$name] : (int)$defaultValue;
+            $field->checked = ($field->value === 1) ? 'checked' : '';
+            $field->columnWidth = 33;
+            $fieldset->add($field);
 
-		$field = $modules->get('InputfieldCheckbox');
-		$name = 'enableTemplateEdit';
-		$defaultValue = self::$defaults[$name];
-		$field->name = $name;
-		$field->label = __('Enable template edit mode', __FILE__);
-		$field->notes = __('Edit page template using ctrl+click on edit links.', __FILE__);
-		$field->value = isset($data[$name]) ? $data[$name] : (int)$defaultValue;
-		$field->checked = ($field->value === 1) ? 'checked' : '';
-		$field->columnWidth = 33;
-		$fieldset->add($field);
+            $field = $modules->get('InputfieldCheckbox');
+            $name = 'enableTemplateEdit';
+            $defaultValue = self::$defaults[$name];
+            $field->name = $name;
+            $field->label = __('Enable template edit mode', __FILE__);
+            $field->notes = __('Edit page template using ctrl+click on edit links.', __FILE__);
+            $field->value = isset($data[$name]) ? $data[$name] : (int)$defaultValue;
+            $field->checked = ($field->value === 1) ? 'checked' : '';
+            $field->columnWidth = 33;
+            $fieldset->add($field);
 
-		$field = $modules->get('InputfieldText');
-		$name = 'selectorsToHide';
-		$defaultValue = self::$defaults[$name];
-		$field->name = $name;
-		$field->label = __('Selectors to hide', __FILE__);
-		$field->description = __('Comma-separated list of CSS selectors to hide elements from the admin.', __FILE__);
-		$field->notes = __('Recommended:', __FILE__) . ' `' . $defaultValue . '`';
-		$field->value = (isset($data[$name]) && !empty($data[$name])) ? $data[$name] : $defaultValue;
-		$field->columnWidth = 100;
-		$fieldset->add($field);
+            $field = $modules->get('InputfieldText');
+            $name = 'selectorsToHide';
+            $defaultValue = self::$defaults[$name];
+            $field->name = $name;
+            $field->label = __('Selectors to hide', __FILE__);
+            $field->description = __('Comma-separated list of CSS selectors to hide elements from the admin.', __FILE__);
+            $field->notes = __('Recommended:', __FILE__) . ' `' . $defaultValue . '`';
+            $field->value = (isset($data[$name]) && !empty($data[$name])) ? $data[$name] : $defaultValue;
+            $field->columnWidth = 100;
+            $fieldset->add($field);
 
-		$field = $modules->get('InputfieldText');
-		$name = 'fieldHighlightStyle';
-		$defaultValue = self::$defaults[$name];
-		$field->name = $name;
-		$field->label = __('Field highlight style', __FILE__);
-		$field->description = __('CSS declarations to style target field. Leave empty to disable.', __FILE__);
-		$field->notes = ' `' . $defaultValue . '`';
-		$field->value = !is_null($data[$name]) ? $data[$name] : $defaultValue;
-		$field->columnWidth = 100;
-		$field->collapsed = 2;
-		$fieldset->add($field);
+            $field = $modules->get('InputfieldText');
+            $name = 'fieldHighlightStyle';
+            $defaultValue = self::$defaults[$name];
+            $field->name = $name;
+            $field->label = __('Field highlight style', __FILE__);
+            $field->description = __('CSS declarations to style target field. Leave empty to disable.', __FILE__);
+            $field->notes = ' `' . $defaultValue . '`';
+            $field->value = isset($data[$name]) ? $data[$name] : $defaultValue;
+            $field->columnWidth = 100;
+            $field->collapsed = 2;
+            $fieldset->add($field);
 
-		$field = $modules->get('InputfieldTextarea');
-		$name = 'styleOverrides';
-		$defaultValue = self::$defaults[$name];
-		$field->name = $name;
-		$field->label = __('Style overrides', __FILE__);
-		$field->description = __('Custom CSS to override styles.', __FILE__);
-		$field->notes = '`: .mfp-wrap.mfp-feel .mfp-content { max-width: 100%; max-height: 100%; }`';
-		$field->value = isset($data[$name]) ? $data[$name] : $defaultValue;
-		$field->columnWidth = 100;
-		$field->collapsed = 2;
-		$field->rows = 6;
-		$fieldset->add($field);
+            $field = $modules->get('InputfieldTextarea');
+            $name = 'styleOverrides';
+            $defaultValue = self::$defaults[$name];
+            $field->name = $name;
+            $field->label = __('Style overrides', __FILE__);
+            $field->description = __('Custom CSS to override styles.', __FILE__);
+            $field->notes = '`: .mfp-wrap.mfp-feel .mfp-content { max-width: 100%; max-height: 100%; }`';
+            $field->value = isset($data[$name]) ? $data[$name] : $defaultValue;
+            $field->columnWidth = 100;
+            $field->collapsed = 2;
+            $field->rows = 6;
+            $fieldset->add($field);
 
-		$fields->add($fieldset);
+            $fields->add($fieldset);
 
-		return $fields;
-	}
+            return $fields;
+        }
 
-	/**
-	 * ready() hook
-	 */
-	public function ready() {
+        /**
+         * ready() hook
+         */
+        public function ready() {
 
-		$this->configData = $this->wire('modules')->getModuleConfigData($this);
+            $this->configData = $this->wire('modules')->getModuleConfigData($this);
 
-		// method needs to be present even if module is disabled to prevent PHP error
-		$this->addHook('Page::feel', $this, 'addMethod');
+            // method needs to be present even if module is disabled to prevent PHP error
+            $this->addHook('Page::feel', $this, 'addMethod');
 
-		if(isset($this->configData['isEnabled']) && $this->configData['isEnabled'] !== 1) {
-			return false;
-		}
+            if (isset($this->configData['isEnabled']) && $this->configData['isEnabled'] !== 1) {
+                return false;
+            }
 
-		// add assets only if user is logged in and has edit-page permission
-		if(wire('user')->isLoggedin() && wire('user')->hasPermission('page-edit')) {
-			$this->addHookAfter('Page::render', $this, 'addAssets');
-		}
-	}
+            // add assets only if user is logged in and has edit-page permission
+            if (wire('user')->isLoggedin() && wire('user')->hasPermission('page-edit')) {
+                $this->addHookAfter('Page::render', $this, 'addAssets');
+            }
+        }
 
-	/**
-	 * Inject CSS/JS to page
-	 *
-	 * @param HookEvent $event
-	 * @return bool
-	 */
-	public function addAssets(HookEvent $event) {
+        /**
+         * Inject CSS/JS to page
+         *
+         * @param HookEvent $event
+         *
+         * @return bool
+         */
+        public function addAssets(HookEvent $event) {
 
-		$page = $event->object;
-		$configData = $this->configData;
+            $page = $event->object;
+            $configData = $this->configData;
 
-		$assetsFEEL = $this->wire('config')->urls->siteModules . __CLASS__ . '/' . __CLASS__;
-		$cssFEEL = '<link rel="stylesheet" media="screen" href="' . $assetsFEEL . '.css' . '">' . PHP_EOL;
-		$cssStyleOverides = empty($configData['styleOverrides']) ? '' : '<style>' . $configData['styleOverrides'] . '</style>' . PHP_EOL;
+            $assetsFEEL = $this->wire('config')->urls->siteModules . __CLASS__ . '/' . __CLASS__;
+            $cssFEEL = '<link rel="stylesheet" media="screen" href="' . $assetsFEEL . '.css' . '">' . PHP_EOL;
+            $cssStyleOverides = empty($configData['styleOverrides']) ? '' : '<style>' . $configData['styleOverrides'] . '</style>' . PHP_EOL;
 
-		// do not add all assets to admin
-		if($page->template != 'admin') {
+            // do not add all assets to admin
+            if ($page->template != 'admin') {
 
-			$assetsMagnific = $this->wire('config')->urls->modules . 'Jquery/JqueryMagnific/JqueryMagnific';
-			$cssMagnific = '<link rel="stylesheet" media="screen" href="' . $assetsMagnific . '.css' . '">' . PHP_EOL;
-			$jsMagnific = '<script src="' . $assetsMagnific . '.js' . '"></script>' . PHP_EOL;
-			$jsFEEL = '<script src="' . $assetsFEEL . '.js' . '"></script>' . PHP_EOL;
-			$jsDefaults = array();
-			foreach(array('closeOnSave', 'fixedSaveButton', 'enableTemplateEdit', 'selectorsToHide', 'fieldHighlightStyle', 'closeConfirmMessage') as $key) {
-				$jsDefaults[$key] = isset($configData[$key]) ? wire('sanitizer')->textarea($configData[$key]) : self::$defaults[$key];
-			}
-			$jsDefaults = '<script>var FEEL_defaults = ' . json_encode($jsDefaults) . '</script>' . PHP_EOL;
+                $assetsMagnific = $this->wire('config')->urls->modules . 'Jquery/JqueryMagnific/JqueryMagnific';
+                $cssMagnific = '<link rel="stylesheet" media="screen" href="' . $assetsMagnific . '.css' . '">' . PHP_EOL;
+                $jsMagnific = '<script src="' . $assetsMagnific . '.js' . '"></script>' . PHP_EOL;
+                $jsFEEL = '<script src="' . $assetsFEEL . '.js' . '"></script>' . PHP_EOL;
+                $jsDefaults = array();
+                foreach (array('closeOnSave', 'fixedSaveButton', 'enableTemplateEdit', 'selectorsToHide', 'fieldHighlightStyle', 'closeConfirmMessage') as $key) {
+                    $jsDefaults[$key] = isset($configData[$key]) ? wire('sanitizer')->textarea($configData[$key]) : self::$defaults[$key];
+                }
+                $jsDefaults = '<script>var FEEL_defaults = ' . json_encode($jsDefaults) . '</script>' . PHP_EOL;
 
-		} else {
-			$cssMagnific = '';
-			$jsMagnific = '';
-			$jsFEEL = '';
-			$jsDefaults = '';
-		}
+            } else {
+                $cssMagnific = '';
+                $jsMagnific = '';
+                $jsFEEL = '';
+                $jsDefaults = '';
+            }
 
-		$event->return = str_replace('</head>', $cssMagnific . $cssFEEL . $cssStyleOverides . $jsDefaults . '</head>', $event->return);
-		$event->return = str_replace('</body>', $jsMagnific . $jsFEEL . '</body>', $event->return);
+            $event->return = str_replace('</head>', $cssMagnific . $cssFEEL . $cssStyleOverides . $jsDefaults . '</head>', $event->return);
+            $event->return = str_replace('</body>', $jsMagnific . $jsFEEL . '</body>', $event->return);
 
-		return false;
-	}
+            return false;
+        }
 
-	/**
-	 * Add $page->feel() method
-	 *
-	 * @param HookEvent $event
-	 * @return string
-	 */
-	public function addMethod(HookEvent $event) {
+        /**
+         * Add $page->feel() method
+         *
+         * @param HookEvent $event
+         *
+         * @return string
+         */
+        public function addMethod(HookEvent $event) {
 
-		$configData = $this->configData;
+            $configData = $this->configData;
 
-		if(isset($configData['isEnabled']) && $configData['isEnabled'] !== 1) {
-			return false;
-		}
+            if (isset($configData['isEnabled']) && $configData['isEnabled'] !== 1) {
+                return false;
+            }
 
-		$page = $event->object;
+            $page = $event->object;
 
-		// return if template is disabled (with the exception of SuperUsers)
-		if(!wire('user')->isSuperUser() && isset($configData['excluded_templates']) && !$this->_isTemplateAllowed($page->template->name, $configData['excluded_templates'])) {
-			return false;
-		}
+            // return if template is disabled (with the exception of SuperUsers)
+            if (!wire('user')->isSuperUser() && isset($configData['excluded_templates']) && !$this->_isTemplateAllowed($page->template->name, $configData['excluded_templates'])) {
+                return false;
+            }
 
-		if(!$this->_isPageAllowed($page)) {
-			return false;
-		}
+            if (!$this->_isPageAllowed($page)) {
+                return false;
+            }
 
-		$defaults = self::$defaults;
+            $defaults = self::$defaults;
 
-		$customOptions = !empty($event->arguments[0]) ? $event->arguments[0] : null;
+            $customOptions = !empty($event->arguments[0]) ? $event->arguments[0] : null;
 
-		// merge module defaults with module options
-		foreach($defaults as $key => $unused) {
-			$settings[$key] = $this->get($key) ? wire('sanitizer')->textarea($this->get($key)) : $defaults[$key];
-		}
+            // merge module defaults with module options
+            foreach ($defaults as $key => $unused) {
+                $settings[$key] = $this->get($key) ? wire('sanitizer')->textarea($this->get($key)) : $defaults[$key];
+            }
 
-		// merge options passed to $page->feel()
-		foreach($settings as $key => $unused) {
-			$settings[$key] = isset($customOptions[$key]) ? wire('sanitizer')->textarea($customOptions[$key]) : $settings[$key];
-		}
+            // merge options passed to $page->feel()
+            foreach ($settings as $key => $unused) {
+                $settings[$key] = isset($customOptions[$key]) ? wire('sanitizer')->textarea($customOptions[$key]) : $settings[$key];
+            }
 
-		$lang = $this->wire("user")->language ? '&language=' . $this->wire("user")->language->id : "";
+            $lang = $this->wire("user")->language ? '&language=' . $this->wire("user")->language->id : "";
 
-		$class = !empty($settings['class']) ? ' class="' . "feel-" . preg_replace("/\s/", " feel-", $settings['class']) . '"' : '';
-		$targetField = !empty($settings['targetField']) ? ' data-target-field="Inputfield_' . $settings['targetField'] . '"' : '';
-		$targetTab = !empty($settings['targetTab']) ? ' data-target-tab="' . $settings['targetTab'] . '"' : '';
-		$overrides = (!empty($settings['overrides']) && is_array($settings['overrides'])) ? " data-overrides='" . json_encode($settings['overrides']) . "'" : "";
+            $class = !empty($settings['class']) ? ' class="' . "feel-" . preg_replace("/\s/", " feel-", $settings['class']) . '"' : '';
+            $targetField = !empty($settings['targetField']) ? ' data-target-field="Inputfield_' . $settings['targetField'] . '"' : '';
+            $targetTab = !empty($settings['targetTab']) ? ' data-target-tab="' . $settings['targetTab'] . '"' : '';
+            $overrides = (!empty($settings['overrides']) && is_array($settings['overrides'])) ? " data-overrides='" . json_encode($settings['overrides']) . "'" : "";
 
-		$editUrl = 'data-mfp-src="' . $page->editUrl . $lang . '&modal=1"';
+            $editUrl = 'data-mfp-src="' . $page->editUrl . $lang . '&modal=1"';
 
-		$templateId = wire('user')->isSuperuser() ? "data-template-id='{$page->template->id}'" : "";
+            $templateId = wire('user')->isSuperuser() ? "data-template-id='{$page->template->id}'" : "";
 
-		$event->return = "<feel $editUrl $class $targetField $targetTab $templateId $overrides style='display: none !important;'>{$settings['text']}</feel>";
-	}
+            $event->return = "<feel $editUrl $class $targetField $targetTab $templateId $overrides style='display: none !important;'>{$settings['text']}</feel>";
+        }
 
-	/**
-	 * Check if page meets the requirements to show edit links
-	 *
-	 * @param Page $page
-	 * @return bool
-	 */
-	private function _isPageAllowed($page) {
-		return ($page instanceof Page && $page->editable() && $page->template != 'admin' && $this->wire('user')->isLoggedin());
-	}
-
-
-	/**
-	 * Check if page template is not disabled
-	 *
-	 * @param $template_name
-	 * @param $excluded_templates
-	 * @return bool
-	 */
-	private function _isTemplateAllowed($template_name, $excluded_templates) {
-		return !in_array($template_name, $excluded_templates);
-	}
+        /**
+         * Check if page meets the requirements to show edit links
+         *
+         * @param Page $page
+         *
+         * @return bool
+         */
+        private function _isPageAllowed($page) {
+            return ($page instanceof Page && $page->editable() && $page->template != 'admin' && $this->wire('user')->isLoggedin());
+        }
 
 
-	/**
-	 * Format value as "Value (name)" based on value/name availability
-	 *
-	 * @param $obj
-	 * @return string
-	 */
-	public function getFormattedOptionName($obj) {
-		return !empty($obj->label) ? $obj->label . ' (' . $obj->name . ')' : $obj->name;
-	}
+        /**
+         * Check if page template is not disabled
+         *
+         * @param $template_name
+         * @param $excluded_templates
+         *
+         * @return bool
+         */
+        private function _isTemplateAllowed($template_name, $excluded_templates) {
+            return !in_array($template_name, $excluded_templates);
+        }
 
-}
+
+        /**
+         * Format value as "Value (name)" based on value/name availability
+         *
+         * @param $obj
+         *
+         * @return string
+         */
+        public function getFormattedOptionName($obj) {
+            return !empty($obj->label) ? $obj->label . ' (' . $obj->name . ')' : $obj->name;
+        }
+
+    }
