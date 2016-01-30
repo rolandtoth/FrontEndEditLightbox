@@ -204,7 +204,6 @@ Global options can be set in the module's settings page.
 - **Enable module**: global toggle to enable/disable module.
 - **Close on save**: auto close lightbox if no validation errors. Disabled in template edit mode (defaults to false).
 - **Fixed save button**: the Save button is at the bottom in the lightboxed admin. Setting this to true will set its position to fixed so it will be always visible in the top-right corner. You can modify its style using the CSS selector `.feel-fixed-save-button`.
-- **Excluded templates**: list of templates where module should be disabled. SuperUsers will see all edit links regardless of this setting.
 - **Enable template edit**: allow page template editing on ctrl+click.
 - **Selectors to hide**: list of selectors to hide elements from admin (for example some tabs).
 - **Field highlight style**: CSS declarations to style target field (leave empty to disable).
@@ -279,7 +278,7 @@ Note that `Close on save` option has no effect in this mode, the admin lightbox 
 
 ## Multilanguage awareness
 
-The helper function takes the current language into account. For example, when browsing the German section of a multilanguage site the German tabs will be opened when the admin loads.
+FEEL takes the current language into account. For example, when browsing the German section of a multilanguage site the German tabs will be opened when the admin loads.
 
 ## Misc
 
@@ -291,7 +290,7 @@ To view the page without the edit links use hotkey ctrl+shift to toggle them on/
 - Edit links don't appear: ensure you are logged in and pages are editable with your role.
 - Edit links inherit formatting from the site's CSS: manually override these in your site's CSS.
 
-Forum: [https://processwire.com/talk/topic/10452-frontend-lightbox-admin-editor-simple/](https://processwire.com/talk/topic/10452-frontend-lightbox-admin-editor-simple/)
+Forum: [https://processwire.com/talk/topic/10452-front-end-edit-lightbox-feel-for-processwire/](https://processwire.com/talk/topic/10452-front-end-edit-lightbox-feel-for-processwire/)
 
 ## License
 
