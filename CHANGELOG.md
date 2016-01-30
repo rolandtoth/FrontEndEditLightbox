@@ -1,14 +1,20 @@
 #Changelog
 
-### 1.2.0 (2015-12-16)
+### 1.2.1 (2016-01-30)
+
+- removed php notice on module install (reported by Sevarf2)
+
+
+### 1.2.0 (2015-12-03)
+
 - fixed: do not add editlink markup if module is disabled (reported by Matjaž)
-- new option: excluded templates
-- use markdown for examples in field notes (module settings page)
-- make advanced fields collapsed if empty (module settings page)
+- a few minor CSS changes (suggested by Matjaž)
+- new option: disabled templates list (only valid for non-SuperUsers)
 - some JS/CSS files skipped if admin
-- a few CSS changes (suggested by Matjaž)
+
 
 ### 1.1.9 (2015-12-01)
+
 - do not add Magnific Popup assets to admin (suggested by Matjaž)
 - fixed missing default values on module install
 - fixed default editlink text override issue
@@ -16,9 +22,11 @@
 - added ctrl+shift hotkey to toggle editlink display
 - sanitize module settings inputs
 
+
 ### 1.1.6 (2015-11-22)
 
 - fix: unchecking setting "Enable module" in module options causing PHP error
+
 
 ### 1.1.5 (2015-11-21)
 
@@ -34,10 +42,12 @@
 - lightbox max-width changed from 900px to 90%
 - use close confirm message only on Chrome - other browsers display the default confirm message before closing the lightbox properly
 
+
 ### 1.1.2 (2015-11-19)
 
 - added "Style overrides" textarea for custom CSS (thanks to Matjaž)
 - moved JS/CSS to `<head>`
+
 
 ### 1.1.0 (2015-11-02)
 
@@ -48,6 +58,7 @@
 - fixed: wire("user")->language only available on multi-lang setups
 - JS callback functions
 - new: override options on individual edit links
+
 
 ### 1.0.1 (2015-10-28)
 
