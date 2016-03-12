@@ -198,7 +198,11 @@ echo $page->feel(array(
 var FEEL = {
     onBeforeReload: function (o) {
 
-        var $editLink = o.editLink;
+        var editLink = o.editLink;
+
+        if(!editLink.attr('data-ajax-target')) {
+            return true;
+        }
 
         $.ajax({
             url: location.href,
@@ -206,7 +210,7 @@ var FEEL = {
             cache: false,
             success: function (response) {
 
-                var ajaxTargetSelector = $editLink.attr('data-ajax-target');
+                var ajaxTargetSelector = editLink.attr('data-ajax-target');
 
                 $(ajaxTargetSelector).load(location.href + ' ' + ajaxTargetSelector + ' > *');
             }
