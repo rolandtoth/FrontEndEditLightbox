@@ -1,5 +1,9 @@
 #Changelog
 
+### 1.2.8 (2016-03-12)
+
+- new option: load CSS assets with FrontEndEditLightbox.js
+
 ### 1.2.7 (2016-03-12)
 
 - new option: disable autoloading FrontEndEditLightbox.js. This enables loading it manually, for example when using a script loader.

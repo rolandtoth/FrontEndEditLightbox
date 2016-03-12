@@ -86,7 +86,7 @@ feel:hover {
     max-height: 90%;
 }
 
-.feel-fixed-save-button {
+.ui-button.feel-fixed-save-button {
     position: fixed;
     top: 5px;
     right: 15px;

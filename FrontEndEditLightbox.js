@@ -3,14 +3,13 @@
  * https://goo.gl/wTeQ4z
  */
 
-var wireModulesUrl = (window.FEEL_defaults && window.FEEL_defaults.wireModulesUrl) ? window.FEEL_defaults.wireModulesUrl : '/wire/modules/';
+var pwRootUrl = (window.FEEL_defaults && window.FEEL_defaults.pwRootUrl) ? window.FEEL_defaults.pwRootUrl : '/wire/';
 
 // fix json_encode escapes (JSON_UNESCAPED_SLASHES is PHP 5.4+)
-wireModulesUrl = wireModulesUrl.replace('\/', '/');
-
+pwRootUrl = pwRootUrl.replace('\/', '/');
 
 if (!window.jQuery) {
-    loadScript(wireModulesUrl + "Jquery/JqueryCore/JqueryCore.js", function () {
+    loadScript(pwRootUrl + "wire/modules/Jquery/JqueryCore/JqueryCore.js", function () {
         startFEEL();
     });
 } else {
@@ -31,9 +30,13 @@ function startFEEL() {
             cache: true
         });
 
+        feel_loadCSS(pwRootUrl + "site/modules/FrontEndEditLightbox/FrontEndEditLightbox.css");
+
         if (!$.magnificPopup) {
-            jQuery.getScript(wireModulesUrl + "Jquery/JqueryMagnific/JqueryMagnific.min.js")
+            jQuery.getScript(pwRootUrl + "wire/modules/Jquery/JqueryMagnific/JqueryMagnific.min.js")
                 .done(function () {
+                    // load MP css
+                    feel_loadCSS(pwRootUrl + "wire/modules/Jquery/JqueryMagnific/JqueryMagnific.css");
                     initFEEL();
                 })
                 .fail(function () {
@@ -216,6 +219,9 @@ function startFEEL() {
                                         adminMode: adminMode
                                     });
 
+                                    // CSS needs to be loaded again
+                                    feel_loadCSS(pwRootUrl + "site/modules/FrontEndEditLightbox/FrontEndEditLightbox.css", 'iframe.mfp-iframe');
+
                                     var editForm = $(adminIframe).contents().find('form#' + (adminMode == 'page' ? 'ProcessPageEdit' : 'ProcessTemplateEdit'));
 
                                     if (_FEEL.fixedSaveButton) {
@@ -341,3 +347,31 @@ function loadScript(url, callback) {
     script.src = url;
     document.getElementsByTagName("head")[0].appendChild(script);
 }
+
+
+function feel_loadCSS(path, iframeSelector) {
+    var links = document.getElementsByTagName('link'),
+        needCSS = true,
+        $head;
+
+    if (iframeSelector) {
+        links = $(iframeSelector).contents().find('link')
+    }
+
+    for (var i = 0; i < links.length; i++) {
+        if (links[i].href == path)
+            needCSS = false;
+    }
+
+    if (needCSS) {
+        var ls = document.createElement('link');
+        ls.rel = "stylesheet";
+        ls.href = path;
+        if (iframeSelector) {
+            $head = $(iframeSelector).contents().find('head')[0];
+        } else {
+            $head = document.getElementsByTagName('head')[0];
+        }
+        $head.insertBefore(ls, $head.childNodes[0])
+    }
+};

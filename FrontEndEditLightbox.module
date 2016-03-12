@@ -24,7 +24,7 @@
         public static function getModuleInfo() {
             return array(
                 'title'     => 'Front-End Edit Lightbox',
-                'version'   => '1.2.7',
+                'version'   => '1.2.8',
                 'summary'   => 'Edit pages on the frontend using lightboxed admin.',
                 'author'    => 'Roland Toth',
                 'href'      => 'https://github.com/rolandtoth/FrontEndEditLightbox',
@@ -152,7 +152,7 @@
             $defaultValue = self::$defaults[$name];
             $field->name = $name;
             $field->label = __('Disable autoloading FrontEndEditLightbox.js', __FILE__);
-            $field->notes = __('Check if you would like to load FEEL manually (eg. when using a script loader).', __FILE__);
+            $field->notes = __('Check if you would like to load FEEL assets manually (eg. when using a script loader).', __FILE__);
             $field->value = isset($data[$name]) ? $data[$name] : (int)$defaultValue;
             $field->checked = ($field->value === 1) ? 'checked' : '';
             $field->columnWidth = 33;
@@ -187,7 +187,7 @@
             $field->name = $name;
             $field->label = __('Style overrides', __FILE__);
             $field->description = __('Custom CSS to override styles.', __FILE__);
-            $field->notes = '`: .mfp-wrap.mfp-feel .mfp-content { max-width: 100%; max-height: 100%; }`';
+            $field->notes = __('Example', __FILE__) . '`: .mfp-wrap.mfp-feel .mfp-content { max-width: 100%; max-height: 100%; }`';
             $field->value = isset($data[$name]) ? $data[$name] : $defaultValue;
             $field->columnWidth = 100;
             $field->collapsed = 2;
@@ -232,23 +232,16 @@
             $configData = $this->configData;
 
             $assetsFEEL = $this->wire('config')->urls->siteModules . __CLASS__ . '/' . __CLASS__;
-            $cssFEEL = '<link rel="stylesheet" media="screen" href="' . $assetsFEEL . '.css' . '">' . PHP_EOL;
             $cssStyleOverides = empty($configData['styleOverrides']) ? '' : '<style>' . $configData['styleOverrides'] . '</style>' . PHP_EOL;
 
-            $cssMagnific = '';
-//            $jsMagnific = '';
             $jsFEEL = '';
             $jsDefaults = '';
 
             // do not add all assets to admin
             if ($page->template != 'admin') {
 
-                $assetsMagnific = $this->wire('config')->urls->modules . 'Jquery/JqueryMagnific/JqueryMagnific';
-                $cssMagnific = '<link rel="stylesheet" media="screen" href="' . $assetsMagnific . '.css' . '">' . PHP_EOL;
-
                 // load FEEL & MP js only if allowed
                 if (isset($configData['skipLoadingScripts']) && $configData['skipLoadingScripts'] != 1) {
-//                    $jsMagnific = '<script src="' . $assetsMagnific . '.js' . '"></script>' . PHP_EOL;
                     $jsFEEL = '<script src="' . $assetsFEEL . '.js' . '"></script>' . PHP_EOL;
                 }
 
@@ -257,13 +250,12 @@
                     $jsDefaults[$key] = isset($configData[$key]) ? wire('sanitizer')->textarea($configData[$key]) : self::$defaults[$key];
                 }
                 // add wire modules url
-                $jsDefaults['modulesUrl'] = $this->wire('config')->urls->modules;
+                $jsDefaults['pwRootUrl'] = $this->wire('config')->urls->root;
                 $jsDefaults = '<script>var FEEL_defaults = ' . json_encode($jsDefaults) . '</script>' . PHP_EOL;
 
             }
 
-            $event->return = str_replace('</head>', $cssMagnific . $cssFEEL . $cssStyleOverides . $jsDefaults . '</head>', $event->return);
-//            $event->return = str_replace('</body>', $jsMagnific . $jsFEEL . '</body>', $event->return);
+            $event->return = str_replace('</head>', $cssStyleOverides . $jsDefaults . '</head>', $event->return);
             $event->return = str_replace('</body>', $jsFEEL . '</body>', $event->return);
 
             return false;
