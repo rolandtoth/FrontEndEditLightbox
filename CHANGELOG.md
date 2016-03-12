@@ -2,7 +2,7 @@
 
 ### 1.2.8 (2016-03-12)
 
-- new: load CSS assets by FrontEndEditLightbox.js
+- new: also load CSS assets by FrontEndEditLightbox.js
 
 ### 1.2.7 (2016-03-12)
 
