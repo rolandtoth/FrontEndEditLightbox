@@ -249,6 +249,7 @@ Global options can be set in the module's settings page.
 - **Close on save**: auto close lightbox if no validation errors. Disabled in template edit mode (defaults to false).
 - **Fixed save button**: the Save button is at the bottom in the lightboxed admin. Setting this to true will set its position to fixed so it will be always visible in the top-right corner. You can modify its style using the CSS selector `.feel-fixed-save-button`.
 - **Enable template edit**: allow page template editing on ctrl+click.
+- **Disable autoloading FrontEndEditLightbox.js**: disables loading FrontEndEditLightbox.js (and CSS assets as they are loaded by this file). Use if you need to load FEEL assets manually.
 - **Selectors to hide**: list of selectors to hide elements from admin (for example some tabs).
 - **Field highlight style**: CSS declarations to style target field (leave empty to disable).
 - **Style overrides**: CSS declarations to override styles. Note that these styles may affect everything on the page if not used with caution.
