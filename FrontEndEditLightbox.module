@@ -24,7 +24,7 @@
         public static function getModuleInfo() {
             return array(
                 'title'     => 'Front-End Edit Lightbox',
-                'version'   => '1.2.1',
+                'version'   => '1.2.7',
                 'summary'   => 'Edit pages on the frontend using lightboxed admin.',
                 'author'    => 'Roland Toth',
                 'href'      => 'https://github.com/rolandtoth/FrontEndEditLightbox',
@@ -50,6 +50,7 @@
             'selectorsToHide'     => '#_ProcessPageEditChildren, #_ProcessPageEditDelete, #_ProcessPageEditSettings, #_WireTabDelete',
             'fieldHighlightStyle' => 'outline: 2px solid #89ADE2; outline-offset: -2px; z-index: 200; position: relative;',
             'styleOverrides'      => '',
+            'skipLoadingScripts'  => '',
             'closeConfirmMessage' => 'Are you sure you want to close the editor?',
             'overrides'           => '',
         );
@@ -146,6 +147,17 @@
             $field->columnWidth = 33;
             $fieldset->add($field);
 
+            $field = $modules->get('InputfieldCheckbox');
+            $name = 'skipLoadingScripts';
+            $defaultValue = self::$defaults[$name];
+            $field->name = $name;
+            $field->label = __('Disable autoloading FrontEndEditLightbox.js', __FILE__);
+            $field->notes = __('Check if you would like to load FEEL manually (eg. when using a script loader).', __FILE__);
+            $field->value = isset($data[$name]) ? $data[$name] : (int)$defaultValue;
+            $field->checked = ($field->value === 1) ? 'checked' : '';
+            $field->columnWidth = 33;
+            $fieldset->add($field);
+
             $field = $modules->get('InputfieldText');
             $name = 'selectorsToHide';
             $defaultValue = self::$defaults[$name];
@@ -223,28 +235,36 @@
             $cssFEEL = '<link rel="stylesheet" media="screen" href="' . $assetsFEEL . '.css' . '">' . PHP_EOL;
             $cssStyleOverides = empty($configData['styleOverrides']) ? '' : '<style>' . $configData['styleOverrides'] . '</style>' . PHP_EOL;
 
+            $cssMagnific = '';
+//            $jsMagnific = '';
+            $jsFEEL = '';
+            $jsDefaults = '';
+
             // do not add all assets to admin
             if ($page->template != 'admin') {
 
                 $assetsMagnific = $this->wire('config')->urls->modules . 'Jquery/JqueryMagnific/JqueryMagnific';
                 $cssMagnific = '<link rel="stylesheet" media="screen" href="' . $assetsMagnific . '.css' . '">' . PHP_EOL;
-                $jsMagnific = '<script src="' . $assetsMagnific . '.js' . '"></script>' . PHP_EOL;
-                $jsFEEL = '<script src="' . $assetsFEEL . '.js' . '"></script>' . PHP_EOL;
+
+                // load FEEL & MP js only if allowed
+                if (isset($configData['skipLoadingScripts']) && $configData['skipLoadingScripts'] != 1) {
+//                    $jsMagnific = '<script src="' . $assetsMagnific . '.js' . '"></script>' . PHP_EOL;
+                    $jsFEEL = '<script src="' . $assetsFEEL . '.js' . '"></script>' . PHP_EOL;
+                }
+
                 $jsDefaults = array();
                 foreach (array('closeOnSave', 'fixedSaveButton', 'enableTemplateEdit', 'selectorsToHide', 'fieldHighlightStyle', 'closeConfirmMessage') as $key) {
                     $jsDefaults[$key] = isset($configData[$key]) ? wire('sanitizer')->textarea($configData[$key]) : self::$defaults[$key];
                 }
+                // add wire modules url
+                $jsDefaults['modulesUrl'] = $this->wire('config')->urls->modules;
                 $jsDefaults = '<script>var FEEL_defaults = ' . json_encode($jsDefaults) . '</script>' . PHP_EOL;
 
-            } else {
-                $cssMagnific = '';
-                $jsMagnific = '';
-                $jsFEEL = '';
-                $jsDefaults = '';
             }
 
             $event->return = str_replace('</head>', $cssMagnific . $cssFEEL . $cssStyleOverides . $jsDefaults . '</head>', $event->return);
-            $event->return = str_replace('</body>', $jsMagnific . $jsFEEL . '</body>', $event->return);
+//            $event->return = str_replace('</body>', $jsMagnific . $jsFEEL . '</body>', $event->return);
+            $event->return = str_replace('</body>', $jsFEEL . '</body>', $event->return);
 
             return false;
         }
@@ -276,8 +296,17 @@
             }
 
             $defaults = self::$defaults;
-
             $customOptions = !empty($event->arguments[0]) ? $event->arguments[0] : null;
+
+            $attributes = array();
+
+            // add custom data-* attributes
+            // process these first to disable overriding defaults
+            foreach ($customOptions as $key => $unused) {
+                if (strpos($key, 'data-') === 0) {
+                    $attributes[$key] = $key . ' = "' . wire('sanitizer')->textarea($customOptions[$key]) . '"';
+                }
+            }
 
             // merge module defaults with module options
             foreach ($defaults as $key => $unused) {
@@ -291,16 +320,19 @@
 
             $lang = $this->wire("user")->language ? '&language=' . $this->wire("user")->language->id : "";
 
-            $class = !empty($settings['class']) ? ' class="' . "feel-" . preg_replace("/\s/", " feel-", $settings['class']) . '"' : '';
-            $targetField = !empty($settings['targetField']) ? ' data-target-field="Inputfield_' . $settings['targetField'] . '"' : '';
-            $targetTab = !empty($settings['targetTab']) ? ' data-target-tab="' . $settings['targetTab'] . '"' : '';
-            $overrides = (!empty($settings['overrides']) && is_array($settings['overrides'])) ? " data-overrides='" . json_encode($settings['overrides']) . "'" : "";
+            $attributes['class'] = !empty($settings['class']) ? 'class="' . "feel-" . preg_replace("/\s/", " feel-", $settings['class']) . '"' : '';
 
-            $editUrl = 'data-mfp-src="' . $page->editUrl . $lang . '&modal=1"';
+            $attributes['targetField'] = !empty($settings['targetField']) ? 'data-target-field="Inputfield_' . $settings['targetField'] . '"' : '';
+            $attributes['targetTab'] = !empty($settings['targetTab']) ? 'data-target-tab="' . $settings['targetTab'] . '"' : '';
+            $attributes['overrides'] = (!empty($settings['overrides']) && is_array($settings['overrides'])) ? "data-overrides='" . json_encode($settings['overrides']) . "'" : "";
 
-            $templateId = wire('user')->isSuperuser() ? "data-template-id='{$page->template->id}'" : "";
+            $attributes['editUrl'] = 'data-mfp-src="' . $page->editUrl . $lang . '&modal=1"';
 
-            $event->return = "<feel $editUrl $class $targetField $targetTab $templateId $overrides style='display: none !important;'>{$settings['text']}</feel>";
+            $attributes['templateId'] = wire('user')->isSuperuser() ? 'data-template-id="' . $page->template->id . '"' : "";
+
+            $attributes['inlineStyle'] = wire('config')->ajax ? '' : 'style="display: none !important;"';
+
+            $event->return = "<feel " . implode(' ', array_filter($attributes)) . ">" . $settings['text'] . "</feel>";
         }
 
         /**

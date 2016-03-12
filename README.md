@@ -18,6 +18,7 @@ Requires jQuery and uses [Magnific Popup](http://dimsemenov.com/plugins/magnific
 - confirm lightbox close if there are unsaved changes
 - configurable lightbox properties
 - edit link positioning helper classes
+- load JavaScript dependencies only if they aren't loaded
 - fail-safe: utilizes native ProcessWire operations only
 
 ## Usage
@@ -73,7 +74,8 @@ You can control how edit links should appear and behave passing an array of para
 echo $page->feel(array(
     "text" => "Edit images",
     "class" => "fixed left",
-    "targetField" => "images"
+    "targetField" => "images",
+    "data-customValue" => "Lorem ipsum"
     )
 );
 ?>
@@ -95,6 +97,7 @@ Using the code above will set "Edit images" for link text and classes "fixed" an
 - [Positioning classes](#positioning-classes-class)
 - [Target field](#target-field-targetfield)
 - [Target tab](#target-tab-targettab)
+- [Custom data attributes](#custom-data-attributes)
 - [Individual overrides](#individual-overrides-overrides)
 - [Popup options](#popup-options-popupoptions)
 
@@ -174,6 +177,47 @@ echo $page->feel(array(
     )
 );
 ```
+
+### Custom data attributes `data-*`
+
+You can add custom data attributes to edit links passing "data-*" parameter.
+
+*Example: add `data-ajax-target` to allow ajax reload part of page (requires an onBeforeReload callback that needs to be added manually to your site's frontend JavaScript file):*
+
+```php
+echo $page->feel(array(
+        "class" => "ajax-link",
+        "data-ajax-target" => "#ajax-wrap"
+    )
+);
+```
+
+*The corresponding JavaScript snippet (simplified):*
+
+```javascript
+var FEEL = {
+    onBeforeReload: function (o) {
+
+        var $editLink = o.editLink;
+
+        $.ajax({
+            url: location.href,
+            type: 'POST',
+            cache: false,
+            success: function (response) {
+
+                var ajaxTargetSelector = $editLink.attr('data-ajax-target');
+
+                $(ajaxTargetSelector).load(location.href + ' ' + ajaxTargetSelector + ' > *');
+            }
+        });
+
+        return false;
+    }
+};
+```
+
+*Note: JavaScript events are removed when replacing elements with ajax so you may need to re-assign them.*
 
 ###Popup options `popupOptions`
 

@@ -1,5 +1,13 @@
 #Changelog
 
+### 1.2.7 (2016-03-12)
+
+- new option: disable autoloading FrontEndEditLightbox.js. This enables loading it manually, for example when using a script loader.
+- new option: custom data-* attributes feature. Can be useful for further JS/CSS processing (eg. ajax reload parts using FEEL callbacks)
+- load jQuery and Magnific Popup by FrontEndEditLightbox.js (only if they aren't loaded)
+- added simple ajax reload implementation exampe to the readme file
+
+
 ### 1.2.1 (2016-01-30)
 
 - removed php notice on module install (reported by Sevarf2)
