@@ -274,7 +274,9 @@ function startFEEL() {
                                                 target.attr("style", _FEEL.fieldHighlightStyle);
                                             }
                                             setTimeout(function () {
-                                                $(adminIframe).contents().scrollTop(target.offset().top - 20);
+                                                if ($(adminIframe).length) {
+                                                    $(adminIframe).contents().scrollTop(target.offset().top - 20);
+                                                }
                                             }, 800)
                                         }
                                     }
