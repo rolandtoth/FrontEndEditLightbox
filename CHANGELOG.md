@@ -1,5 +1,9 @@
 #Changelog
 
+### 1.2.8 (2016-03-13)
+
+- fixed disable autoloading scripts working the opposite way (reported by Matjaž) 
+
 ### 1.2.8 (2016-03-12)
 
 - new: also load CSS assets by FrontEndEditLightbox.js

@@ -24,7 +24,7 @@
         public static function getModuleInfo() {
             return array(
                 'title'     => 'Front-End Edit Lightbox',
-                'version'   => '1.2.8',
+                'version'   => '1.2.9',
                 'summary'   => 'Edit pages on the frontend using lightboxed admin.',
                 'author'    => 'Roland Toth',
                 'href'      => 'https://github.com/rolandtoth/FrontEndEditLightbox',
@@ -241,7 +241,7 @@
             if ($page->template != 'admin') {
 
                 // load FEEL & MP js only if allowed
-                if (isset($configData['skipLoadingScripts']) && $configData['skipLoadingScripts'] != 1) {
+                if (!isset($configData['skipLoadingScripts']) || $configData['skipLoadingScripts'] != 1) {
                     $jsFEEL = '<script src="' . $assetsFEEL . '.js' . '"></script>' . PHP_EOL;
                 }
 
@@ -291,6 +291,7 @@
             $customOptions = !empty($event->arguments[0]) ? $event->arguments[0] : null;
 
             $attributes = array();
+            $lang = $this->wire("user")->language ? '&language=' . $this->wire("user")->language->id : "";
 
             // add custom data-* attributes
             // process these first to disable overriding defaults
@@ -309,8 +310,6 @@
             foreach ($settings as $key => $unused) {
                 $settings[$key] = isset($customOptions[$key]) ? wire('sanitizer')->textarea($customOptions[$key]) : $settings[$key];
             }
-
-            $lang = $this->wire("user")->language ? '&language=' . $this->wire("user")->language->id : "";
 
             $attributes['class'] = !empty($settings['class']) ? 'class="' . "feel-" . preg_replace("/\s/", " feel-", $settings['class']) . '"' : '';
 
