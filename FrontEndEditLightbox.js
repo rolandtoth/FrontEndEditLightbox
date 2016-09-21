@@ -9,7 +9,7 @@ var pwRootUrl = (window.FEEL_defaults && window.FEEL_defaults.pwRootUrl) ? windo
 pwRootUrl = pwRootUrl.replace('\/', '/');
 
 if (!window.jQuery) {
-    loadScript(pwRootUrl + "wire/modules/Jquery/JqueryCore/JqueryCore.js", function () {
+    feel_loadScript(pwRootUrl + "wire/modules/Jquery/JqueryCore/JqueryCore.js", function () {
         startFEEL();
     });
 } else {
@@ -327,22 +327,23 @@ function callCallback(fx, parameters) {
     return (window.FEEL && typeof FEEL[fx] === 'function') ? FEEL[fx](parameters) : true;
 }
 
-function loadScript(url, callback) {
+function feel_loadScript(url, callback) {
 
-    var script = document.createElement("script")
+    var script = document.createElement("script");
+
     script.type = "text/javascript";
 
     if (script.readyState) {  //IE
         script.onreadystatechange = function () {
-            if (script.readyState == "loaded" ||
+            if (script.readySstate == "loaded" ||
                 script.readyState == "complete") {
                 script.onreadystatechange = null;
-                callback();
+                if (callback) callback();
             }
         };
     } else {  //Others
         script.onload = function () {
-            callback();
+            if (callback) callback();
         };
     }
 
