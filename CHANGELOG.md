@@ -1,6 +1,11 @@
 #Changelog
 
-### 1.2.8 (2016-03-13)
+### 1.3.0 (2016-09-21)
+
+- fixed PHP error when no parameters was passed to feel()
+- use non-minified version of JqueryMagnific.js (unavailable in earlier PW)
+
+### 1.2.9 (2016-03-13)
 
 - fixed disable autoloading scripts working the opposite way (reported by Matjaž) 
 

@@ -33,7 +33,7 @@ function startFEEL() {
         feel_loadCSS(pwRootUrl + "site/modules/FrontEndEditLightbox/FrontEndEditLightbox.css");
 
         if (!$.magnificPopup) {
-            jQuery.getScript(pwRootUrl + "wire/modules/Jquery/JqueryMagnific/JqueryMagnific.min.js")
+            jQuery.getScript(pwRootUrl + "wire/modules/Jquery/JqueryMagnific/JqueryMagnific.js")
                 .done(function () {
                     // load MP css
                     feel_loadCSS(pwRootUrl + "wire/modules/Jquery/JqueryMagnific/JqueryMagnific.css");
