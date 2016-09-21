@@ -327,15 +327,15 @@ function callCallback(fx, parameters) {
     return (window.FEEL && typeof FEEL[fx] === 'function') ? FEEL[fx](parameters) : true;
 }
 
+
 function feel_loadScript(url, callback) {
 
     var script = document.createElement("script");
-
     script.type = "text/javascript";
 
     if (script.readyState) {  //IE
         script.onreadystatechange = function () {
-            if (script.readySstate == "loaded" ||
+            if (script.readyState == "loaded" ||
                 script.readyState == "complete") {
                 script.onreadystatechange = null;
                 if (callback) callback();
@@ -377,4 +377,4 @@ function feel_loadCSS(path, iframeSelector) {
         }
         $head.insertBefore(ls, $head.childNodes[0])
     }
-};
+}
