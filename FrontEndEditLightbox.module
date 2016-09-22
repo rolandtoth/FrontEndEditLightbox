@@ -24,7 +24,7 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
     public static function getModuleInfo() {
         return array(
             'title'     => 'Front-End Edit Lightbox',
-            'version'   => '1.3.0',
+            'version'   => '1.3.1',
             'summary'   => 'Edit pages on the frontend using lightboxed admin.',
             'author'    => 'Roland Toth',
             'href'      => 'https://github.com/rolandtoth/FrontEndEditLightbox',
@@ -86,7 +86,7 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
         $field->label       = __('Default edit link text', __FILE__);
         $field->description = __('Text to display on edit links. Defaults to "#" if empty.', __FILE__);
         $field->notes       = __('Use `"text" => ""` in your templates to force no text.', __FILE__);
-        $field->value       = (isset($data[$name]) && !empty($data[$name])) ? $this->modules->textarea($data[$name]) : $defaultValue;
+        $field->value       = (isset($data[$name]) && !empty($data[$name])) ? $this->sanitizer->textarea($data[$name]) : $defaultValue;
         $field->columnWidth = 34;
         $fieldset->add($field);
 
