@@ -57,6 +57,9 @@ Requires jQuery and uses [Magnific Popup](http://dimsemenov.com/plugins/magnific
 
 1. Set link text, positioning/styling classes, target field or tab, etc using [parameters](#parameters).
 
+From version 1.3.2 you can also use the middle mouse button to open the admin in a new window (tab).
+
+
 ## Uninstall
 
 1. Remove (or comment out) all instances of module reference in your template files.

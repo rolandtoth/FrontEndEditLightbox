@@ -67,7 +67,6 @@ function startFEEL() {
 
             FEEL.selector = 'feel';
 
-
             if ($(FEEL.selector).length) {
 
                 if (false === callCallback('onInit')) {
@@ -129,7 +128,7 @@ function startFEEL() {
 
 
                 // initialize and open lightbox
-                $(document).on('click', FEEL.selector, function (e) {
+                $(document).on('mousedown', FEEL.selector, function (e) {
 
                     e.preventDefault();
 
@@ -142,6 +141,17 @@ function startFEEL() {
                         _FEEL = {},
                         $editLink = $(this),
                         adminMode = 'page';
+
+                    // right click
+                    if(e.which == 3) {
+                        return false;
+                    }
+
+                    // if middle mouse button pressed, open the admin in a new page
+                    if(e.which == 2 || e.button == 4) {
+                        window.open(iframeSrc.replace('&modal=1', ''));
+                        return false;
+                    }
 
                     // create new _FEEL object to avoid overwriting original
                     $.extend(_FEEL, FEEL, overrides ? JSON.parse(overrides) : null);

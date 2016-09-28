@@ -24,7 +24,7 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
     public static function getModuleInfo() {
         return array(
             'title'     => 'Front-End Edit Lightbox',
-            'version'   => '1.3.1',
+            'version'   => '1.3.2',
             'summary'   => 'Edit pages on the frontend using lightboxed admin.',
             'author'    => 'Roland Toth',
             'href'      => 'https://github.com/rolandtoth/FrontEndEditLightbox',
@@ -308,9 +308,13 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
             $settings[$key] = $this->get($key) ? $this->sanitizer->textarea($this->get($key)) : $defaults[$key];
         }
 
+
+
         // merge options passed to $page->feel()
         foreach ($settings as $key => $unused) {
-            $settings[$key] = isset($customOptions[$key]) ? $this->sanitizer->textarea($customOptions[$key]) : $settings[$key];
+            // using sanitizer flattens arrays
+//            $settings[$key] = isset($customOptions[$key]) ? $this->sanitizer->textarea($customOptions[$key]) : $settings[$key];
+            $settings[$key] = isset($customOptions[$key]) ? $customOptions[$key] : $settings[$key];
         }
 
         $attributes['class'] = !empty($settings['class']) ? 'class="' . "feel-" . preg_replace("/\s/", " feel-", $settings['class']) . '"' : '';

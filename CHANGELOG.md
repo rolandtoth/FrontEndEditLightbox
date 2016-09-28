@@ -1,5 +1,10 @@
 #Changelog
 
+### 1.3.2 (2016-09-27)
+
+- allow middle-click on feel button to open the admin in a new window
+
+
 ### 1.3.1 (2016-09-22)
 
 - fixed default edit link text not saved in settings (reported by Matjaž)
