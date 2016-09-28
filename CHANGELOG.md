@@ -1,5 +1,10 @@
 #Changelog
 
+### 1.3.3 (2016-09-28)
+
+- only prefix module's own CSS classes with "feel-" (reported by Matjaž)
+
+
 ### 1.3.2 (2016-09-27)
 
 - allow middle-click on feel button to open the admin in a new window

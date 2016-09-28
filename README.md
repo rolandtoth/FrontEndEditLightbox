@@ -127,7 +127,10 @@ By default edit links appear inline and with black font color. You can use the f
 echo $page->feel(array("class" => "fixed bottom left button invert"));
 ```
 
-Please note that fixed positioned edit links will overlap if placed to the same position, eg. adding two edit links with classes "fixed top left".
+Notes:
+
+- Fixed positioned edit links will overlap if placed to the same position, eg. adding two edit links with classes "fixed top left"
+- Positioning classes will get a "feel-" prefix when rendered ("feel-top", "feel-left"). However, if you pass custom classes they won't get prefixed.
 
 ### Target field `targetField`
 
