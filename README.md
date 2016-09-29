@@ -9,6 +9,7 @@ Requires jQuery and uses [Magnific Popup](http://dimsemenov.com/plugins/magnific
 
 - add edit links to templates using `$page->feel()` where $page can be any Page object
 - open admin in a lightbox
+- load only specified fields instead the full admin page
 - reload page only if page was saved
 - auto-close lightbox on save if no errors (optional)
 - edit page template on ctrl+click (optional)
@@ -98,6 +99,7 @@ Using the code above will set "Edit images" for link text and classes "fixed" an
 
 - [Edit link text](#edit-link-text-text)
 - [Positioning classes](#positioning-classes-class)
+- [Fields to load](#fields)
 - [Target field](#target-field-targetfield)
 - [Target tab](#target-tab-targettab)
 - [Custom data attributes](#custom-data-attributes)
@@ -148,6 +150,29 @@ echo feel($page->feel(array(
     )
 );
 ```
+
+### Fields to load `fields`
+
+
+**fields** allows to load only specified fields of $page instead of the full admin page.
+
+You can specify multiple fields by separating them with comma. Fields will appear in the order you have set them.
+
+*Example: show only the "title" and the "body" fields in the lightbox:
+
+```php
+echo feel($page->feel(array(
+	"text" => "Edit title and body fields",
+    "fields" => "title,body"
+    )
+);
+```
+
+Notes:
+
+- fields that are not on the current page will be skipped to avoid ProcessWire error message
+- fieldset and fieldsettab fields are unsupported, though specifying a tab field will show its fields (but not grouped in a tab)
+
 
 ### Target tab `targetTab`
 

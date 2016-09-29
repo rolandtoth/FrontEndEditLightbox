@@ -1,5 +1,10 @@
 #Changelog
 
+### 1.3.4 (2016-09-30)
+
+- new feature: set fields to load in the lightbox instead of the full admin
+- fix styleOverrides not working at all
+
 ### 1.3.3 (2016-09-28)
 
 - only prefix module's own CSS classes with "feel-" (reported by Matjaž)

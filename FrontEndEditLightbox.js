@@ -143,12 +143,12 @@ function startFEEL() {
                         adminMode = 'page';
 
                     // right click
-                    if(e.which == 3) {
+                    if (e.which == 3) {
                         return false;
                     }
 
                     // if middle mouse button pressed, open the admin in a new page
-                    if(e.which == 2 || e.button == 4) {
+                    if (e.which == 2 || e.button == 4) {
                         window.open(iframeSrc.replace('&modal=1', ''));
                         return false;
                     }
@@ -158,7 +158,6 @@ function startFEEL() {
 
                     // apply user popupOptions
                     $.extend(true, $.magnificPopup.defaults, _FEEL.popupOptions);
-
 
                     // set src to Template instead of Page if modifier key is pressed
                     if (templateId && _FEEL.enableTemplateEdit && e.ctrlKey) {
@@ -228,6 +227,11 @@ function startFEEL() {
                                         iframe: $(this),
                                         adminMode: adminMode
                                     });
+
+                                    // append style block to header
+                                    if (_FEEL.styleOverrides) {
+                                        $('<style>' + _FEEL.styleOverrides + '</style>').appendTo($(adminIframe).contents().find('head'));
+                                    }
 
                                     // CSS needs to be loaded again
                                     feel_loadCSS(pwRootUrl + "site/modules/FrontEndEditLightbox/FrontEndEditLightbox.css", 'iframe.mfp-iframe');
