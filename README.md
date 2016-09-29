@@ -29,7 +29,7 @@ Requires jQuery and uses [Magnific Popup](http://dimsemenov.com/plugins/magnific
 1. Place edit links in your template files where you would like them to appear:
 
     ```php
-	<?php echo $page->feel(); ?>
+    <?php echo $page->feel(); ?>
     ```
     `$page` is the page that you would like to edit. It can be any page, not only the current one.
 
@@ -47,13 +47,13 @@ Requires jQuery and uses [Magnific Popup](http://dimsemenov.com/plugins/magnific
     *Example: edit the parent page:*
 
     ```php
-    echo feel($page->parent());
+    <?php echo $page->parent()->feel(); ?>
     ```
 
     *Example: edit the "Our Services" page on an arbitrary page:*
 
     ```php
-    echo $pages->get("/our-services/")->feel();
+    <?php echo $pages->get("/our-services/")->feel(); ?>
     ```
 
 1. Set link text, positioning/styling classes, target field or tab, etc using [parameters](#parameters).
@@ -88,9 +88,7 @@ echo $page->feel(array(
 Short array syntax (PHP 5.4 and up):
 
 ```php
-<?php
-echo $page->feel(["text" => "Edit images", "class" => "fixed left", "targetField" => "images"]);
-?>
+<?php echo $page->feel(["text" => "Edit images", "class" => "fixed left", "targetField" => "images"]); ?>
 ```
 
 Using the code above will set "Edit images" for link text and classes "fixed" and "left". It also sets target field to "images", which will scroll into view and gets highlighted when the admin loads.
@@ -126,7 +124,7 @@ By default edit links appear inline and with black font color. You can use the f
 *Example: set edit link to appear as a button in the bottom-left corner of the browser window, with black background and white font color:*
 
 ```php
-echo $page->feel(array("class" => "fixed bottom left button invert"));
+<?php echo $page->feel(array("class" => "fixed bottom left button invert")); ?>
 ```
 
 Notes:
@@ -144,11 +142,12 @@ It also adds a small highlight (outline) to the field to make it easier to find 
 *Example: jump to the "images" field:*
 
 ```php
-echo feel($page->feel(array(
+<?php echo $page->feel(array(
 	"text" => "Click to edit images",
     "targetField" => "images"
     )
 );
+?>
 ```
 
 ### Fields to load `fields`
@@ -161,11 +160,12 @@ You can specify multiple fields by separating them with comma. Fields will appea
 *Example: show only the "title" and the "body" fields in the lightbox:
 
 ```php
-echo feel($page->feel(array(
+<?php echo $page->feel(array(
 	"text" => "Edit title and body fields",
     "fields" => "title,body"
     )
 );
+?>
 ```
 
 Notes:
@@ -181,11 +181,12 @@ Notes:
 *Example: activate the SEO tab (requires the MarkupSEO module):*
 
 ```php
-echo feel($page->feel(array(
+<?php echo $page->feel(array(
 	"text" => "Click to edit SEO options",
     "targetTab" => "#Inputfield_seo_tab"
     )
 );
+?>
 ```
 
 To find out tab IDs use the browser's Developer Tools (Inspector).
@@ -199,7 +200,7 @@ Individual options only affect the current edit link.
 *Example: set `closeOnSave` to false and set a custom highlight style on the "body" field:*
 
 ```php
-echo $page->feel(array(
+<?php echo $page->feel(array(
         "targetField" => "body",
         "overrides" => array(
             "closeOnSave" => false,
@@ -207,6 +208,7 @@ echo $page->feel(array(
         )
     )
 );
+?>
 ```
 
 ### Custom data attributes `data-*`
@@ -216,11 +218,12 @@ You can add custom data attributes to edit links passing "data-*" parameter.
 *Example: add `data-ajax-target` to allow ajax reload part of page (requires an onBeforeReload callback that needs to be added manually to your site's frontend JavaScript file):*
 
 ```php
-echo $page->feel(array(
+<?php echo $page->feel(array(
         "class" => "ajax-link",
         "data-ajax-target" => "#ajax-wrap"
     )
 );
+?>
 ```
 
 *The corresponding JavaScript snippet (simplified):*
@@ -231,9 +234,7 @@ var FEEL = {
 
         var editLink = o.editLink;
 
-        if(!editLink.attr('data-ajax-target')) {
-            return true;
-        }
+        if(!editLink.attr('data-ajax-target')) return true;
 
         $.ajax({
             url: location.href,
@@ -261,13 +262,15 @@ An array containing [Magnific Popup settings](http://dimsemenov.com/plugins/magn
 *Example: enable Magnific Popup to close on background click:*
 
 ```php
-echo $page->feel(array(
-	"overrides" => array(
-        "popupOptions" => array(
-            "closeOnBgClick" => true
+<?php echo $page->feel(array(
+        "overrides" => array(
+            "popupOptions" => array(
+                "closeOnBgClick" => true
+            )
         )
     )
 );
+?>
 ```
 
 ## Options
@@ -347,7 +350,6 @@ var FEEL = {
     }
 };
 ```
-
 
 ## Template edit mode
 
