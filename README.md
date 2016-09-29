@@ -140,7 +140,7 @@ Notes:
 
 You can specify multiple fields by separating them with comma. Fields will appear in the order you have set them.
 
-*Example: show only the "title" and the "body" fields in the lightbox:
+*Example: show only the "title" and the "body" fields in the lightbox:*
 
 ```php
 <?php echo $page->feel(array(
