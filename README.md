@@ -143,7 +143,8 @@ You can specify multiple fields by separating them with comma. Fields will appea
 *Example: show only the "title" and the "body" fields in the lightbox:*
 
 ```php
-<?php echo $page->feel(array(
+<?php
+echo $page->feel(array(
 	"text" => "Edit title and body fields",
     "fields" => "title,body"
     )
@@ -167,7 +168,8 @@ It also adds a small highlight (outline) to the field to make it easier to find 
 *Example: jump to the "images" field:*
 
 ```php
-<?php echo $page->feel(array(
+<?php
+echo $page->feel(array(
 	"text" => "Click to edit images",
     "targetField" => "images"
     )
@@ -182,7 +184,8 @@ It also adds a small highlight (outline) to the field to make it easier to find 
 *Example: activate the SEO tab (requires the MarkupSEO module):*
 
 ```php
-<?php echo $page->feel(array(
+<?php
+echo $page->feel(array(
 	"text" => "Click to edit SEO options",
     "targetTab" => "#Inputfield_seo_tab"
     )
@@ -201,7 +204,8 @@ Individual options only affect the current edit link.
 *Example: set `closeOnSave` to false and set a custom highlight style on the "body" field:*
 
 ```php
-<?php echo $page->feel(array(
+<?php
+echo $page->feel(array(
         "targetField" => "body",
         "overrides" => array(
             "closeOnSave" => false,
@@ -219,7 +223,8 @@ You can add custom data attributes to edit links passing "data-*" parameter.
 *Example: add `data-ajax-target` to allow ajax reload part of page (requires an onBeforeReload callback that needs to be added manually to your site's frontend JavaScript file):*
 
 ```php
-<?php echo $page->feel(array(
+<?php
+echo $page->feel(array(
         "class" => "ajax-link",
         "data-ajax-target" => "#ajax-wrap"
     )
@@ -263,7 +268,8 @@ An array containing [Magnific Popup settings](http://dimsemenov.com/plugins/magn
 *Example: enable Magnific Popup to close on background click:*
 
 ```php
-<?php echo $page->feel(array(
+<?php
+echo $page->feel(array(
         "overrides" => array(
             "popupOptions" => array(
                 "closeOnBgClick" => true
