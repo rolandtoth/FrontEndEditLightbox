@@ -97,7 +97,7 @@ Using the code above will set "Edit images" for link text and classes "fixed" an
 
 - [Edit link text](#edit-link-text-text)
 - [Positioning classes](#positioning-classes-class)
-- [Fields to load](#fields)
+- [Fields to load](#fields-to-load-fields)
 - [Target field](#target-field-targetfield)
 - [Target tab](#target-tab-targettab)
 - [Custom data attributes](#custom-data-attributes)
@@ -132,23 +132,6 @@ Notes:
 - Fixed positioned edit links will overlap if placed to the same position, eg. adding two edit links with classes "fixed top left"
 - Positioning classes will get a "feel-" prefix when rendered ("feel-top", "feel-left"). However, if you pass custom classes they won't get prefixed.
 
-### Target field `targetField`
-
-**targetField** is the ProcessWire field name where the admin should jump on opening.
-
-This can come handy if you would like to open the admin right at a given field.
-It also adds a small highlight (outline) to the field to make it easier to find (see "fieldHighlightStyle" option to modify or disable).
-
-*Example: jump to the "images" field:*
-
-```php
-<?php echo $page->feel(array(
-	"text" => "Click to edit images",
-    "targetField" => "images"
-    )
-);
-?>
-```
 
 ### Fields to load `fields`
 
@@ -173,6 +156,24 @@ Notes:
 - fields that are not on the current page will be skipped to avoid ProcessWire error message
 - fieldset and fieldsettab fields are unsupported, though specifying a tab field will show its fields (but not grouped in a tab)
 
+
+### Target field `targetField`
+
+**targetField** is the ProcessWire field name where the admin should jump on opening.
+
+This can come handy if you would like to open the admin right at a given field.
+It also adds a small highlight (outline) to the field to make it easier to find (see "fieldHighlightStyle" option to modify or disable).
+
+*Example: jump to the "images" field:*
+
+```php
+<?php echo $page->feel(array(
+	"text" => "Click to edit images",
+    "targetField" => "images"
+    )
+);
+?>
+```
 
 ### Target tab `targetTab`
 
