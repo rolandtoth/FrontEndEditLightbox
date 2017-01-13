@@ -24,12 +24,12 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
     public static function getModuleInfo() {
         return array(
             'title'     => 'Front-End Edit Lightbox',
-            'version'   => '1.3.4',
+            'version'   => 135,
             'summary'   => 'Edit pages on the frontend using lightboxed admin.',
             'author'    => 'Roland Toth',
             'href'      => 'https://github.com/rolandtoth/FrontEndEditLightbox',
             'icon'      => 'paper-plane',
-            'autoload'  => true,
+            'autoload'  => 'template!=admin',
             'singular'  => true,
             'permanent' => false,
         );

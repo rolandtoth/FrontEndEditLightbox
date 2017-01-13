@@ -1,5 +1,9 @@
 #Changelog
 
+### 1.3.5 (2017-01-13)
+
+- autoload module on front-end only
+
 ### 1.3.4 (2016-09-30)
 
 - new feature: set fields to load in the lightbox instead of the full admin
