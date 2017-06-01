@@ -1,13 +1,21 @@
-#Changelog
+# Changelog
+
+
+### 1.3.6 (2017-06-01)
+
+- fixed issue with "fields" mode in PW 2.7 (thanks to CarloC)
+
 
 ### 1.3.5 (2017-01-13)
 
 - autoload module on front-end only
 
+
 ### 1.3.4 (2016-09-30)
 
 - new feature: set fields to load in the lightbox instead of the full admin
 - fix styleOverrides not working at all
+
 
 ### 1.3.3 (2016-09-28)
 

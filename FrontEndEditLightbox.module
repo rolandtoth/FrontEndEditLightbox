@@ -24,7 +24,7 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
     public static function getModuleInfo() {
         return array(
             'title'     => 'Front-End Edit Lightbox',
-            'version'   => 135,
+            'version'   => 136,
             'summary'   => 'Edit pages on the frontend using lightboxed admin.',
             'author'    => 'Roland Toth',
             'href'      => 'https://github.com/rolandtoth/FrontEndEditLightbox',
@@ -348,7 +348,7 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
             $fieldsArray = explode(',', $settings['fields']);
 
             foreach ($fieldsArray as $key => $fieldName) {
-                if (!$page->hasField($fieldName)) {
+                if (!$page->template->hasField($fieldName)) {
                     unset($fieldsArray[$key]);
                 }
             }
