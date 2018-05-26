@@ -1,6 +1,17 @@
 # Changelog
 
 
+### 1.3.7 (2018-05-26)
+
+- skip unnecessary redirect on modal save (by matjazp)
+- new "page-add" action to add child (requested/contributed by matjazp)
+- use monospace font in module settings field styleOverrides (by matjazp)
+- new setting: disable loading FEEL CSS (requested by matjazp)
+- remove system templates from module settings Excluded templates dropdown
+- JavaScript callback updates and documentation
+- several minor tweaks
+
+
 ### 1.3.6 (2017-06-01)
 
 - fixed issue with "fields" mode in PW 2.7 (thanks to CarloC)
@@ -8,7 +19,7 @@
 
 ### 1.3.5 (2017-01-13)
 
-- autoload module on front-end only
+- autoload module on front-end only (in 1.3.7 it's autoload again)
 
 
 ### 1.3.4 (2016-09-30)

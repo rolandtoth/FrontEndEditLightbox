@@ -15,7 +15,6 @@ feel {
     z-index: 999;
     -webkit-transition: all 0.1s;
     transition: all 0.1s;
-    -webkit-backface-visibility: hidden;
     -backface-visibility: hidden;
 }
 
@@ -80,17 +79,17 @@ feel:hover {
     background: transparent;
 }
 
+.ui-button.feel-fixed-save-button {
+    position: fixed;
+    top: 6px;
+    right: 15px;
+    z-index: 999;
+}
+
 .mfp-feel .mfp-content {
     background: #fff;
     max-width: 90%;
     max-height: 90%;
-}
-
-.ui-button.feel-fixed-save-button {
-    position: fixed;
-    top: 5px;
-    right: 15px;
-    z-index: 999;
 }
 
 .mfp-wrap:not(.mfp-gallery) .mfp-content {
@@ -138,7 +137,7 @@ feel:hover {
     -webkit-animation: mfp-spinner .6s linear infinite;
 }
 
-body.hide-feel feel {
+body[data-hide-feel="1"] feel {
     display: none !important;
 }
 
@@ -146,4 +145,10 @@ body.hide-feel feel {
     feel {
         display: none;
     }
+}
+
+/*remove box-shadow, may cause positioning issues*/
+.mfp-feel .mfp-iframe-scaler iframe {
+    box-shadow: none !important;
+    background: white;
 }
