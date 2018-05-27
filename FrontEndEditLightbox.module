@@ -244,7 +244,7 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
             }
         }
 
-        if ($settings['mode'] === 'add') {
+        if ($settings['mode'] === 'page-add') {
             $parent = !empty($settings['parent']) ? $settings['parent'] : $page->id;
             $url = $this->wire('config')->urls->admin . 'page/add/?parent_id=' . $parent;
             $attributes['editUrl'] = 'data-mfp-src="' . $url . $lang . $fields . '&modal=1"';
