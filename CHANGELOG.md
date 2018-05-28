@@ -1,6 +1,13 @@
 # Changelog
 
 
+### 1.3.8 (2018-05-28)
+
+- fix CSS loading
+- make Save + Keep unpublished button also fixed
+
+
+
 ### 1.3.7 (2018-05-26)
 
 - skip unnecessary redirect on modal save (by matjazp)

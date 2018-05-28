@@ -79,11 +79,12 @@ feel:hover {
     background: transparent;
 }
 
-.ui-button.feel-fixed-save-button {
+.feel-fixed-save .InputfieldSubmit[class*="Inputfield_submit_"] {
     position: fixed;
-    top: 6px;
-    right: 15px;
+    top: 0;
+    right: 1rem;
     z-index: 999;
+    backface-visibility: hidden;
 }
 
 .mfp-feel .mfp-content {

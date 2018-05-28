@@ -231,14 +231,16 @@ function startFEEL() {
                                 // wait until iframe is loaded
                                 $(adminIframe).on("load", function () {
 
-                                    // hide iframe again to mask removing elements on frame reload - or maybe not
-                                    //$(adminIframe).css('visibility','hidden');
+                                    // find edit form ProcessPageEdit or ProcessTemplateEdit //todo: check template editing
+                                    var iframeContent = $(this).contents();
+                                    var editForm = iframeContent.find('form#' + (mode === 'page-edit' ? 'ProcessPageEdit' : 'ProcessTemplateEdit'));
+
+                                    if (!_FEEL.skipLoadingStyles) {
+                                        iframeContent.find('head').find(':last').after('<link rel="stylesheet" type="text/css" href="' + siteModules + 'FrontEndEditLightbox/FrontEndEditLightbox.css">');
+                                    }
 
                                     // remove spinner
                                     $('.mfp-iframe-holder .mfp-content').removeClass('mfp-spinner');
-
-                                    // find edit form ProcessPageEdit or ProcessTemplateEdit //todo: check template editing
-                                    var editForm = $(this).contents().find('form#' + (mode === 'page-edit' ? 'ProcessPageEdit' : 'ProcessTemplateEdit'));
 
                                     // if editForm.length > 0 then we are in ProcessPageEdit
                                     // if editForm.length = 0 then we are either:
@@ -248,7 +250,7 @@ function startFEEL() {
                                     if (editForm.length) {
                                         processPageEdit = true;
                                     } else {
-                                        editForm = $(this).contents().find('form#ProcessPageAdd');
+                                        editForm = iframeContent.find('form#ProcessPageAdd');
                                         if (editForm.length) {
                                             mode = 'page-add';
                                             processPageAdd = true;
@@ -257,72 +259,68 @@ function startFEEL() {
                                         }
                                     }
 
-                                    // we have a form
-                                    if (!processSaveRedirect) {
+                                    // add feel-modal to the iframe html for targetting elements inside the iframe
+                                    iframeContent.find('html').addClass('feel-modal');
 
-                                        // add feel-modal to the iframe html for targetting elements inside the iframe
-                                        $(this).contents().find('html').addClass('feel-modal');
+                                    // add html class to be able to target fixed save button
+                                    if (_FEEL.fixedSaveButton) {
+                                        iframeContent.find('html').addClass('feel-fixed-save');
 
-                                        // CSS needs to be loaded in iframe
-                                        if (!_FEEL.skipLoadingStyles) {
-                                            _loadAsset(siteModules + 'FrontEndEditLightbox/FrontEndEditLightbox.css?selector="iframe.mfp-iframe"');
+                                        // also make the Save+Keep unpublished button fixed (move it to the Save button's wrapper)
+                                        if (iframeContent.find('[name="submit_publish"]').length) {
+                                            iframeContent.find('[name="submit_save"]').insertBefore(iframeContent.find('[name="submit_publish"]'));
                                         }
-
-                                        // move the save button to the fixed position top right
-                                        if (_FEEL.fixedSaveButton) {
-                                            editForm.find("#submit_save, #Inputfield_submit").addClass('feel-fixed-save-button').appendTo(editForm);
-                                        }
-
-                                        // hide selectors
-                                        if (_FEEL.selectorsToHide) {
-                                            $(this).contents().find(_FEEL.selectorsToHide).remove();
-                                        }
-
-                                        // highlight field
-                                        if (targetField) {
-
-                                            var selector = '#wrap_';
-                                            var target;
-
-                                            // try highlighting wrapper element first (that's above language tabs)
-                                            if (!editForm.has("#wrap_" + targetField).length) {
-                                                selector = "#";
-                                            }
-
-                                            target = editForm.find(selector + targetField);
-
-                                            if (target.length) {
-                                                if (_FEEL.fieldHighlightStyle) {
-                                                    target.attr("style", _FEEL.fieldHighlightStyle);
-                                                }
-                                                setTimeout(function () {
-                                                    if ($(adminIframe).length) {
-                                                        $(adminIframe).contents().scrollTop(target.offset().top - 20);
-                                                    }
-                                                }, 800)
-                                            }
-                                        }
-
-                                        //
-                                        if (!_FEEL.closeOnSave) {
-                                            editForm.on("submit", function () {
-                                                // save localStorageKey state
-                                                localStorage.setItem(lsNeedsReload, '1');
-                                            });
-                                        }
-
-                                        // pass execution to callback function
-                                        callCallback('onLightboxReady', {
-                                            event: e,
-                                            feel: _FEEL,
-                                            iframe: $(this),
-                                            editForm: editForm, // check in your callback, could be undefined!
-                                            mode: mode
-                                        });
-
-                                        // unhide frame
-                                        $(adminIframe).css('visibility', 'visible');
                                     }
+
+                                    // hide selectors
+                                    if (_FEEL.selectorsToHide) {
+                                        iframeContent.find(_FEEL.selectorsToHide).remove();
+                                    }
+
+                                    // highlight field
+                                    if (targetField) {
+
+                                        var selector = '#wrap_';
+                                        var target;
+
+                                        // try highlighting wrapper element first (that's above language tabs)
+                                        if (!editForm.has("#wrap_" + targetField).length) {
+                                            selector = "#";
+                                        }
+
+                                        target = editForm.find(selector + targetField);
+
+                                        if (target.length) {
+                                            if (_FEEL.fieldHighlightStyle) {
+                                                target.attr("style", _FEEL.fieldHighlightStyle);
+                                            }
+                                            setTimeout(function () {
+                                                if ($(adminIframe).length) {
+                                                    $(adminIframe).scrollTop(target.offset().top - 20);
+                                                }
+                                            }, 800)
+                                        }
+                                    }
+
+                                    //
+                                    if (!_FEEL.closeOnSave) {
+                                        editForm.on("submit", function () {
+                                            // save localStorageKey state
+                                            localStorage.setItem(lsNeedsReload, '1');
+                                        });
+                                    }
+
+                                    // pass execution to callback function
+                                    callCallback('onLightboxReady', {
+                                        event: e,
+                                        feel: _FEEL,
+                                        iframe: $(this),
+                                        editForm: editForm, // check in your callback, could be undefined!
+                                        mode: mode
+                                    });
+
+                                    // unhide frame
+                                    $(adminIframe).css('visibility', 'visible');
 
                                     if (processPageEdit && _FEEL.closeOnSave) {
                                         // inject hidden input field that will be read by ProcessPageEdit::processSaveRedirect hook
@@ -330,7 +328,7 @@ function startFEEL() {
                                     }
 
                                     // close the modal
-                                    if (processSaveRedirect && mode !== 'template-edit' && mode !== 'page-add') {
+                                    if (processSaveRedirect && mode === 'page-edit') {
                                         setTimeout(function () {
                                             $.magnificPopup.instance.close();
                                         }, 100);
@@ -350,7 +348,7 @@ function startFEEL() {
                             afterClose: function (e) {
 
                                 var needsReload = localStorage[lsNeedsReload];
-                                //if (!processSaveRedirect && !localStorage[lsNeedsReload]) return;
+
                                 if (!(processSaveRedirect || needsReload)) return;
 
                                 localStorage.removeItem(lsNeedsReload);
@@ -403,11 +401,14 @@ function callCallback(fx, params) {
 function _loadAsset(path, callback, o) {
     var selector = getUrlParameter('selector', path).replace(/['"]+/g, '').trim(),
         async = getUrlParameter('async', path) === 'true',
+        context = getUrlParameter('context', path).replace(/['"]+/g, '').trim(),
         assetType = 'js',
         assetTag = 'script',
         assetSrc = 'src',
-        needAsset = true;
+        needAsset = true,
+        doc = context ? document.querySelector(context).contentWindow.document : document;
 
+    // todo if context is set, where to match selector?
     if (selector.length > 0 && !document.querySelector(selector)) return false;
 
     function getUrlParameter(name, url) {
@@ -429,7 +430,7 @@ function _loadAsset(path, callback, o) {
         assetSrc = 'href';
     }
 
-    if (document.querySelector(assetTag + '[' + assetSrc + '="' + path + '"]')) needAsset = false;
+    if (doc.querySelector(assetTag + '[' + assetSrc + '="' + path + '"]')) needAsset = false;
 
     function callCallback() {
         if (callback) {
@@ -441,7 +442,7 @@ function _loadAsset(path, callback, o) {
     }
 
     if (needAsset) {
-        var asset = document.createElement(assetTag);
+        var asset = doc.createElement(assetTag);
         asset[assetSrc] = path;
 
         if (assetType === 'js') {
@@ -463,7 +464,8 @@ function _loadAsset(path, callback, o) {
             asset.rel = "stylesheet";
             callCallback();
         }
-        document.getElementsByTagName("head")[0].appendChild(asset);
+
+        doc.getElementsByTagName("head")[0].appendChild(asset);
 
     } else {    // always run callback
         callCallback();
