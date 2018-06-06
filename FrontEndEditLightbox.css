@@ -3,22 +3,24 @@
  * https://goo.gl/wTeQ4z
  */
 
-feel {
+[data-feel] {
     all: initial;
     display: inline-block !important;
     padding: 0;
     margin: 0 0 0 3px;
     vertical-align: middle;
-    font: normal normal normal 15px/1 sans-serif;
+    font-weight: normal;
+    font-style: normal;
+    font-size: 15px;
+    line-height: 1;
+    font-family: sans-serif;
     opacity: 0.3;
-    color: #000;
-    z-index: 999;
-    -webkit-transition: all 0.1s;
-    transition: all 0.1s;
+    color: black;
+    z-index: 950;
     -backface-visibility: hidden;
 }
 
-feel:hover {
+[data-feel]:hover {
     cursor: pointer;
     opacity: 1;
 }
@@ -67,28 +69,29 @@ feel:hover {
 }
 
 .feel-invert {
-    color: #fff;
+    color: white;
 }
 
 .feel-invert.feel-button {
     background: rgba(0, 0, 0, 0.5);
-    color: #fff;
+    color: white;
 }
 
 .feel-button.feel-transparent {
     background: transparent;
 }
 
-.feel-fixed-save .InputfieldSubmit[class*="Inputfield_submit_"] {
+.feel-fixed-save .InputfieldSubmit[class*="Inputfield_submit_"],
+.feel-fixed-save .InputfieldButton[class*="Inputfield_submit_"] {
     position: fixed;
-    top: 0;
+    top: -9px;
     right: 1rem;
     z-index: 999;
     backface-visibility: hidden;
 }
 
 .mfp-feel .mfp-content {
-    background: #fff;
+    background: white;
     max-width: 90%;
     max-height: 90%;
 }
@@ -99,6 +102,11 @@ feel:hover {
 
 .mfp-close {
     font-size: 40px;
+}
+
+/*hide second close div above lightbox (perhaps a magnificPopup bug)*/
+.mfp-close:empty {
+    display: none;
 }
 
 @keyframes mfp-spinner {
@@ -132,18 +140,18 @@ feel:hover {
 .mfp-spinner:not(:required):before {
     content: "";
     border-radius: 50%;
-    border: 1px solid #ccc;
+    border: 3px solid #ccc;
     border-top-color: #03ade0;
-    animation: mfp-spinner .6s linear infinite;
-    -webkit-animation: mfp-spinner .6s linear infinite;
+    animation: mfp-spinner .7s linear infinite;
+    -webkit-animation: mfp-spinner .7s linear infinite;
 }
 
-body[data-hide-feel="1"] feel {
+body[data-hide-feel="1"] [data-feel] {
     display: none !important;
 }
 
 @media print {
-    feel {
+    [data-feel] {
         display: none;
     }
 }

@@ -1,11 +1,20 @@
 # Changelog
 
 
+### 1.3.9 (2018-06-06)
+
+- change "feel" element to "a[data-feel]": valid markup and native middle-click support
+- fix onLightboxReady (should only fire when the lightbox opens, reported by matjazp)
+- add selectors to hide for superusers (requested/added by matjazp)
+- allow empty values for fieldHighlightStyle and selectorsToHide
+- fix CSS bug in magnific popup
+- minor tweaks
+
+
 ### 1.3.8 (2018-05-28)
 
 - fix CSS loading
 - make Save + Keep unpublished button also fixed
-
 
 
 ### 1.3.7 (2018-05-26)

@@ -53,13 +53,13 @@ function startFEEL() {
         function initFEEL() {
 
             var FEEL = $.extend(true, {}, {
-                closeOnSave: true,  // auto close lightbox if no validation errors (true/false)
-                fixedSaveButton: true,  // set Save button position fixed to the top-right corner
-                enableTemplateEdit: false,  // allow page template editing on ctrl-click (true/false)
-                selectorsToHide: '#_ProcessPageEditChildren, #_ProcessPageEditDelete, #_ProcessPageEditSettings, #_WireTabDelete',  // list of selectors to hide elements from admin
-                fieldHighlightStyle: 'outline: 2px solid #89ADE2; outline-offset: -1px; z-index: 200; position: relative;',  // CSS declarations to style target field (leave empty to disable)
-                closeConfirmMessage: 'Are you sure you want to close the editor?',  // text to show on lightbox close if there are unsaved changes
-                skipLoadingStyles: false,  // load FrontEndEditLightbox.css (true/false)
+                closeOnSave: true,
+                fixedSaveButton: true,
+                enableTemplateEdit: false,
+                selectorsToHide: '#_ProcessPageEditChildren, #_ProcessPageEditDelete, #_ProcessPageEditSettings, #_WireTabDelete',
+                fieldHighlightStyle: 'outline: 2px solid #89ADE2; outline-offset: -1px; z-index: 200; position: relative;',
+                closeConfirmMessage: 'Are you sure you want to close the editor?',
+                skipLoadingStyles: false,
                 popupOptions: {  // settings to pass to Magnific Popup
                     closeBtnInside: false,
                     fixedContentPos: true,
@@ -75,7 +75,7 @@ function startFEEL() {
                 _loadAsset(siteModules + 'FrontEndEditLightbox/FrontEndEditLightbox.css');
             }
 
-            FEEL.selector = 'feel';
+            FEEL.selector = '[data-feel]';
 
             if ($(FEEL.selector).length) {
 
@@ -87,16 +87,18 @@ function startFEEL() {
 
                 $(FEEL.selector).each(function () {
 
+                    var $editLink = $(this);
+
                     if (false === callCallback('onEditLinkInit', {
                             feel: FEEL,
-                            obj: $(this)
+                            editlink: $editLink
                         })) {
                         return false;
                     }
 
-                    var url = $(this).attr("data-mfp-src"),
+                    var url = $editLink.attr("data-mfp-src"),
                         // targetField = $(this).attr("data-target-field"),
-                        targetTab = $(this).attr("data-target-tab") ? $(this).attr("data-target-tab") : "";
+                        targetTab = $editLink.attr("data-target-tab") ? $editLink.attr("data-target-tab") : "";
 
                     // page edit url is required
                     if (!url) {
@@ -106,15 +108,15 @@ function startFEEL() {
                     // disable tab activation if the tab is set to hidden
                     // target tab hash needs to be the tab link href
                     if (FEEL.selectorsToHide.indexOf(targetTab.replace('#', '_')) > -1) {
-                        targetTab = "";
+                        targetTab = '';
                     }
 
                     // using attr because data can't be re-set
-                    $(this).attr("data-mfp-src", url + targetTab);
+                    $editLink.attr("data-mfp-src", url + targetTab);
 
                     callCallback('onEditLinkReady', {
                         feel: FEEL,
-                        obj: $(this)
+                        editLink: $editLink
                     });
 
                     // show feel links if JS is enabled
@@ -138,8 +140,6 @@ function startFEEL() {
                 // initialize and open lightbox
                 $(document).on('mousedown', FEEL.selector, function (e) {
 
-                    e.preventDefault();
-
                     // todo add $editLink to all callback functions
                     var iframeSrc = $(this).attr('data-mfp-src');
                     var targetField = $(this).attr('data-target-field');
@@ -151,14 +151,15 @@ function startFEEL() {
 
                     // right click
                     if (e.which === 3) {
-                        return false;
+                        return true;
                     }
 
                     // if middle mouse button pressed, open the admin in a new page
                     if (e.which === 2 || e.button === 4) {
-                        window.open(iframeSrc.replace('&modal=1', ''));
-                        return false;
+                        return true;
                     }
+
+                    e.preventDefault();
 
                     // create new _FEEL object to avoid overwriting original
                     $.extend(_FEEL, FEEL, overrides ? JSON.parse(overrides) : null);
@@ -175,7 +176,7 @@ function startFEEL() {
                     if (false === callCallback('onIframeInit', {
                             event: e,
                             feel: _FEEL,
-                            obj: $(this),
+                            editlink: $editLink,
                             mode: mode
                         })) {
                         return false;
@@ -192,35 +193,15 @@ function startFEEL() {
                         callbacks: {
                             open: function () {
 
+                                // pass execution to callback function
+                                callCallback('onLightboxReady', {
+                                    event: e,
+                                    feel: _FEEL,
+                                    editlink: $editLink,
+                                    mode: mode
+                                });
+
                                 localStorage.removeItem(lsNeedsReload);
-
-                                // override "close" method in MagnificPopup object
-                                $.magnificPopup.instance.close = function () {
-
-                                    var unsavedMsg;
-
-                                    // get any unsaved message (inputfields.js) - only for chrome
-                                    if (navigator.userAgent.toLowerCase().indexOf('chrome') > -1) {
-                                        if (document.querySelector('.mfp-feel .mfp-iframe').contentWindow.InputfieldFormBeforeUnloadEvent) {
-                                            unsavedMsg = document.querySelector('.mfp-feel .mfp-iframe').contentWindow.InputfieldFormBeforeUnloadEvent({});
-                                        }
-                                    }
-
-                                    if (false === callCallback('onLightboxClose', {
-                                            event: e,
-                                            feel: _FEEL,
-                                            obj: $(this),
-                                            mode: mode
-                                        })) {
-                                        return false;
-                                    }
-
-                                    if (unsavedMsg && !confirm(unsavedMsg + '\n\n' + FEEL.closeConfirmMessage)) {
-                                        return false;
-                                    }
-
-                                    $.magnificPopup.proto.close.call(this);
-                                };
 
                                 // add mfp-spinner
                                 $('.mfp-iframe-holder .mfp-content').addClass('mfp-spinner');
@@ -302,22 +283,12 @@ function startFEEL() {
                                         }
                                     }
 
-                                    //
                                     if (!_FEEL.closeOnSave) {
                                         editForm.on("submit", function () {
                                             // save localStorageKey state
                                             localStorage.setItem(lsNeedsReload, '1');
                                         });
                                     }
-
-                                    // pass execution to callback function
-                                    callCallback('onLightboxReady', {
-                                        event: e,
-                                        feel: _FEEL,
-                                        iframe: $(this),
-                                        editForm: editForm, // check in your callback, could be undefined!
-                                        mode: mode
-                                    });
 
                                     // unhide frame
                                     $(adminIframe).css('visibility', 'visible');
@@ -338,12 +309,44 @@ function startFEEL() {
                                     callCallback('onIframeReady', {
                                         event: e,
                                         feel: _FEEL,
-                                        iframe: $(this),
+                                        editlink: $editLink,
+                                        iframe: $(adminIframe),
                                         editForm: editForm, // check in your callback, could be undefined!
                                         mode: mode
                                     });
 
+                                    // unhide frame
+                                    $(adminIframe).css('visibility', 'visible');
+
                                 }); // $(adminIframe).on("load", function ()
+
+                                // override "close" method in MagnificPopup object
+                                $.magnificPopup.instance.close = function () {
+
+                                    var unsavedMsg;
+
+                                    // get any unsaved message (inputfields.js) - only for chrome
+                                    if (navigator.userAgent.toLowerCase().indexOf('chrome') > -1) {
+                                        if (document.querySelector('.mfp-feel .mfp-iframe').contentWindow.InputfieldFormBeforeUnloadEvent) {
+                                            unsavedMsg = document.querySelector('.mfp-feel .mfp-iframe').contentWindow.InputfieldFormBeforeUnloadEvent({});
+                                        }
+                                    }
+
+                                    if (false === callCallback('onLightboxClose', {
+                                            event: e,
+                                            feel: _FEEL,
+                                            editlink: $editLink,
+                                            mode: mode
+                                        })) {
+                                        return false;
+                                    }
+
+                                    if (unsavedMsg && !confirm(unsavedMsg + '\n\n' + FEEL.closeConfirmMessage)) {
+                                        return false;
+                                    }
+
+                                    $.magnificPopup.proto.close.call(this);
+                                };
                             },
                             afterClose: function (e) {
 
@@ -359,9 +362,7 @@ function startFEEL() {
                                     if (false === callCallback('onBeforeReload', {
                                             event: e,
                                             feel: _FEEL,
-                                            // obj: $(this),
-                                            // editLink: $editLink
-                                            obj: $editLink,
+                                            editlink: $editLink,
                                             mode: mode
                                         })) {
                                         return false;

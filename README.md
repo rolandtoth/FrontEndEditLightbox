@@ -350,19 +350,19 @@ var FEEL = {
 **List of available callbacks (list of arguments in the brackets):**
 
 - **onInit** (`feel`): fires before setting up FEEL edit links
-- **onEditLinkInit** (`feel`, `obj`): fires before each edit link init
-- **onEditLinkReady** (`feel`, `obj`): fires after each edit link init is ready (*)
-- **onLightboxInit** (`event`, `feel`, `obj`, `mode`): fires before starting the lightbox
-- **onLightboxReady** (`event`, `feel`, `iframe`, `editForm`, `mode`): fires when the lightbox is ready  (*)
-- **onIframeReady** (`event`, `feel`, `iframe`, `editForm`, `mode`): fires when the iframe content is loaded (that is, multiple times if closeOnSave is false or there were errors)  (*)
-- **onLightboxClose** (`event`, `feel`, `obj`, `mode`): fires before closing the lightbox
-- **onBeforeReload** (`event`, `feel`, `obj`, `mode`): fires before reloading the page
+- **onEditLinkInit** (`feel`, `editLink`): fires before each edit link init
+- **onEditLinkReady** (`feel`, `editLink`): fires after each edit link init is ready (*)
+- **onLightboxInit** (`event`, `feel`, `editLink`, `mode`): fires before starting the lightbox
+- **onLightboxReady** (`event`, `feel`, `editLink`, `mode`): fires when the lightbox is ready  (*)
+- **onIframeReady** (`event`, `feel`, `editLink`, `iframe`, `editForm`, `mode`): fires when the iframe content is loaded (that is, multiple times if closeOnSave is false or there were errors)  (*)
+- **onLightboxClose** (`event`, `feel`, `editLink`, `mode`): fires before closing the lightbox
+- **onBeforeReload** (`event`, `feel`, `editLink`, `mode`): fires before reloading the page
 
 *Arguments*:
 
 - `event`: the current event object (mousedown)
 - `feel`: current FEEL settings (containing the overriden settings when available)
-- `obj`: the current edit link jQuery element
+- `editLink`: the edit link clicked on (jQuery element)
 - `iframe`: the current iframe jQuery /instance
 - `editForm`: the current form jQuery instance (#ProcessPageEdit, #ProcessTemplateEdit, #ProcessPageAdd)
 - `mode`: the current mode the admin is opened - `page-edit` (default), `template-edit` (ctrl+click, available only when enabled) or `page-add`. Note: mode is `page-edit` instead of `page-add` when "quick adding" a page (that is, parent-child relationship of the corresponding templates are set in ProcessWire so the add page screen is skipped)
@@ -375,6 +375,7 @@ Plus all callbacks with contain a property `callbackName` containing the name of
 ```javascript
 var FEEL = {
     onEditLinkReady: function (o) {
+        console.log(o.callbackName);
         console.log('Edit link added with source: ' + o.obj.attr('data-mfp-src'));
     }
 };
