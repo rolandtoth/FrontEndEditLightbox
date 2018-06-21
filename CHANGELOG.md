@@ -1,6 +1,13 @@
 # Changelog
 
 
+### 1.4.0 (2018-06-21)
+
+- asset loading improvements (by matjazp)
+- compatibility fixes when used together with PageFrontEdit module (by matjazp)
+- show an alert when ctrl key is pressed and template edit mode is disabled, or if it's not a page-edit mode
+
+
 ### 1.3.9 (2018-06-06)
 
 - change "feel" element to "a[data-feel]": valid markup and native middle-click support

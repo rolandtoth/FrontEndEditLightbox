@@ -25,7 +25,7 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
     {
         return array(
             'title'     => 'Front-End Edit Lightbox',
-            'version'   => '1.3.9',
+            'version'   => '1.4.0',
             'summary'   => 'Edit pages on the frontend using lightboxed admin.',
             'author'    => 'Roland Toth',
             'href'      => 'https://github.com/rolandtoth/FrontEndEditLightbox',
@@ -53,12 +53,12 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
         'enableTemplateEdit'       => false,
         'selectorsToHide'          => '#_ProcessPageEditChildren, #ProcessPageEditChildren, ' .
             '#_ProcessPageEditDelete, #ProcessPageEditDelete, ' .
-            '#_ProcessPageEditSettings, #ProcessPageEditSettings, ' .
+            '#_ProcessPageEditSettings, ' .
             '#_WireTabDelete, #WireTabDelete',
         'selectorsToHideSuperUser' => '#_ProcessPageEditChildren, #ProcessPageEditChildren',
         'fieldHighlightStyle'      => 'outline: 2px solid #89ADE2; outline-offset: -2px; z-index: 200; position: relative;',
         'styleOverrides'           => '',
-        'skipLoadingScripts'       => '',
+        'skipLoadingScripts'       => false,
         'skipLoadingStyles'        => false,
         'closeConfirmMessage'      => 'Are you sure you want to close the editor?',
         'overrides'                => '',
@@ -124,19 +124,22 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
     {
         $page = $event->object;
         $configData = $this->configData;
+        $defaults = self::$defaults;
+        $config = $this->wire('config');
 
-        $assetsFEEL = $this->wire('config')->urls->siteModules . __CLASS__ . '/' . __CLASS__;
-        $cssStyleOverides = empty($configData['styleOverrides']) ? '' : '<style>' . $configData['styleOverrides'] . '</style>';
+        $assetsFEEL = $config->urls->siteModules . __CLASS__ . '/' . __CLASS__;
+        $cssStyleOverides = empty($configData['styleOverrides']) ? '' : '<style>' .
+            PHP_EOL . $configData['styleOverrides'] . PHP_EOL . '</style>' . PHP_EOL;
 
         $jsFEEL = '';
-        $jsDefaults = '';
+        $defaultScripts = '';
 
         // do not add all assets to admin
         if ($page->template->name !== 'admin') {
 
             // load FEEL & MFP js only if allowed
             if (!isset($configData['skipLoadingScripts']) || $configData['skipLoadingScripts'] != 1) {
-                $jsFEEL = '<script src="' . $assetsFEEL . '.js' . '"></script>' . PHP_EOL;
+                $jsFEEL = '<script src="' . $assetsFEEL . 'Load.js' . '"></script>' . PHP_EOL;
             }
 
             $jsDefaults = array();
@@ -145,18 +148,23 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
             }
 
             if ($this->wire('user')->isSuperuser()) {
-                $jsDefaults['selectorsToHide'] = $configData['selectorsToHideSuperUser'];
+                $jsDefaults['selectorsToHide'] = isset($configData['selectorsToHideSuperUser']) ? $configData['selectorsToHideSuperUser'] : '';
             }
 
             // add wire modules url
-            $jsDefaults['wireModules'] = $this->wire('config')->urls->modules;
-            $jsDefaults['siteModules'] = $this->wire('config')->urls->siteModules;
-            $jsDefaults = '<script>var FEEL_defaults = ' . json_encode($jsDefaults) . '</script>' . PHP_EOL;
+            $jsDefaults['wireModules'] = $config->urls->modules;
+            $jsDefaults['siteModules'] = $config->urls->siteModules;
+
+            $encodedDefaults = (defined('JSON_PRETTY_PRINT') && $config->debug)
+                ? json_encode($jsDefaults, JSON_PRETTY_PRINT)
+                : json_encode($jsDefaults);
+
+            $defaultScripts = '<script>' . 'var FEEL_defaults = ' . $encodedDefaults . '</script>';
         }
 
-        $event->return = str_replace('<body', '<body data-hide-feel="1"', $event->return);
-        $event->return = str_replace('</head>', $cssStyleOverides . $jsDefaults . '</head>', $event->return);
-        $event->return = str_replace('</body>', $jsFEEL . '</body>', $event->return);
+        // note: do not use quotes around data-hide-feel="1", LanguageTranslator chokes on it
+        $event->return = str_replace('<body', '<body data-hide-feel=1', $event->return);
+        $event->return = str_replace('</head>', $cssStyleOverides . $defaultScripts . $jsFEEL . PHP_EOL . '</head>', $event->return);
 
         return false;
     }
@@ -177,7 +185,6 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
         }
 
         $page = $event->object;
-
         $user = $this->wire('user');
 
         // return if template is disabled (with the exception of SuperUsers)
@@ -191,8 +198,8 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
 
         $defaults = self::$defaults;
         $customOptions = !empty($event->arguments[0]) ? $event->arguments[0] : array();
+        $sanitizer = $this->wire('sanitizer');
         $settings = array();
-
         $attributes = array();
         $lang = $user->language ? '&language=' . $user->language->id : '';
 
@@ -201,14 +208,14 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
         if ($customOptions) {
             foreach ($customOptions as $key => $unused) {
                 if (strpos($key, 'data-') === 0) {
-                    $attributes[$key] = $key . ' = "' . $this->wire('sanitizer')->textarea($customOptions[$key]) . '"';
+                    $attributes[$key] = $key . ' = "' . $sanitizer->textarea($customOptions[$key]) . '"';
                 }
             }
         }
 
         // merge module defaults with module options
         foreach ($defaults as $key => $unused) {
-            $settings[$key] = $this->get($key) ? $this->wire('sanitizer')->textarea($this->get($key)) : $defaults[$key];
+            $settings[$key] = $this->get($key) ? $sanitizer->textarea($this->get($key)) : $defaults[$key];
         }
 
         // merge options passed to $page->feel()
@@ -413,7 +420,7 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
         $name = 'skipLoadingScripts';
         $defaultValue = self::$defaults[$name];
         $field->name = $name;
-        $field->label = __('Disable autoloading FrontEndEditLightbox.js', __FILE__);
+        $field->label = __('Do not load FrontEndEditLightbox.js', __FILE__);
         $field->notes = __('Check if you would like to load FEEL Js manually (eg. when using a script loader).', __FILE__);
         $field->value = isset($data[$name]) ? $data[$name] : (int)$defaultValue;
         $field->checked = ($field->value === 1) ? 'checked' : '';
@@ -424,7 +431,7 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
         $name = 'skipLoadingStyles';
         $defaultValue = self::$defaults[$name];
         $field->name = $name;
-        $field->label = __('Disable autoloading FrontEndEditLightbox.css', __FILE__);
+        $field->label = __('Do not load FrontEndEditLightbox.css', __FILE__);
         $field->notes = __('Check if you would like to load your custom CSS.', __FILE__);
         $field->value = isset($data[$name]) ? $data[$name] : (int)$defaultValue;
         $field->checked = ($field->value === 1) ? 'checked' : '';
@@ -447,7 +454,7 @@ class FrontEndEditLightbox extends WireData implements Module, ConfigurableModul
         $name = 'selectorsToHideSuperUser';
         $defaultValue = self::$defaults[$name];
         $field->name = $name;
-        $field->label = __('Selectors to hide SuperUsers', __FILE__);
+        $field->label = __('Selectors to hide for SuperUsers', __FILE__);
         $field->description = __('Comma-separated list of CSS selectors to hide elements from the admin.', __FILE__);
         $field->notes = $recommendedString . ' `' . $defaultValue . '`';
         $field->value = (isset($data[$name]) && !empty($data[$name])) ? $data[$name] : '';
